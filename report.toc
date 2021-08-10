@@ -1,0 +1,5 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}PhaistOS, le générateur d'ordonnanceurs d'E/S}{1}{}%
+\contentsline {section}{\numberline {2}Contexte des langages dédiés s'appliquant aux ordonnanceurs d'E/S sous Linux}{1}{}%
+\contentsline {section}{\numberline {3}La modernisation et les performances du Disque de Phaistos}{1}{}%
+\contentsline {section}{\numberline {4}Rétrospection}{1}{}%

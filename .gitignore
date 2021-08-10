@@ -1,0 +1,11 @@
+*.xlsx
+*.docx
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.synctex.gz
+stuff/

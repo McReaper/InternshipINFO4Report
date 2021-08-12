@@ -91,13 +91,14 @@ En effet, le but de ma mission était de faire évoluer le compilateur actuel
 pour qu'il puisse produire un code qui se rapproche de celui d'un module Linux.
 Un module Linux étant une extension du noyau du système qui peut être branchée
 et débranchée à volonté, à chaud, c'est-à-dire pendant que le système est 
-chargé en mémoire RAM et s'éxecute. À cet objectif se rajoute celui de tests 
-d'analyses comparatives ayant pour but de montrer que l'utilisation d'un DSL 
-n'a que très peu d'impact sur les performances finales du code généré. Bien 
-évidemment, d'autres tâches me seront assignées, comme celle de la 
-documentation, ou de la paricipation à la rédaction du papier scientifique 
-portant à décrire le fonctionnement de PhaistOS (plus de détails sur ma 
-contribution au projet dans la Partie~\ref{contrib}).
+chargé en mémoire et s'éxecute. À cet objectif se rajoute celui de tests 
+d'analyses comparatives (qu'on appellera ``benchmark'' par la suite) ayant pour 
+but de montrer que l'utilisation d'un DSL n'a que très peu d'impact sur les 
+performances finales du code généré. Bien évidemment, d'autres tâches me seront 
+assignées, comme celle de la documentation, ou de la paricipation à la 
+rédaction du papier scientifique portant à décrire le fonctionnement de 
+PhaistOS (plus de détails sur ma contribution au projet dans la Partie~\ref
+{contrib}).
 
 \subsection{Pré-requis}
 
@@ -109,8 +110,8 @@ documentation, des pages de wikis, et même des fois des forums.
 La première étape a été de comprendre comment les ordonnanceurs d'E/S 
 fonctionnaient sous Linux. À savoir, que chaque ordonnanceur est considéré 
 comme un module (intégré de base dans le SE ou non), et que l'ordonnanceur 
-actif est contenu dans un fichier particulier du système (changer le contenu du 
-fichier change l'ordonnanceur actif).
+actif est contenu dans un fichier particulier \cite{IOSchedulers} du système 
+(changer le contenu du fichier change l'ordonnanceur actif).
 
 Il a fallut ensuite que je me familiarise avec l'environement de travail 
 virtuel qui m'était proposé, c'est-à-dire le ``déjà existant'' du projet, 
@@ -119,11 +120,13 @@ PhaistOS dans le système et pour finir le code source de PhaistOS des
 différents dépôts de système de versions Git hébergés sur la plateforme \href
 {https://gitlab.inria.fr/}{Gitlab}.
 
-Plus tard, j'ai du utiliser un réseau de serveurs externes appelé Grid'5000 
-pour effectuer des tests sur des machines plus performantes que ma machine 
-personnelle. Pour cela j'ai du respecter une charte d'utilisation et apprendre 
-les commandes propres à l'utilisation de la plateforme. À ce niveau là du 
-stage, une connaissance fondamentale des systèmes d'exploitation était 
-nécessaire pour chaque installation sur les machines distantes.
+Plus tard, j'ai du utiliser un réseau de serveurs externes français et dédié à 
+la recherche appelé Grid'5000 pour effectuer des tests sur des machines plus 
+performantes que ma machine personnelle. Pour cela j'ai du respecter une charte 
+d'utilisation et apprendre les commandes propres à l'utilisation de la 
+plateforme. À ce niveau là du stage, une connaissance fondamentale des systèmes 
+d'exploitation était nécessaire pour chaque installation sur les machines 
+distantes.
 
-La dernière étape a été de ... 
+Et pour finir, je devais maîtriser et mettre en place des outils de benchmark 
+que nous avions désignés avec mon tuteur. 

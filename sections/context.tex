@@ -1,7 +1,7 @@
-\section[Contexte des langages dédiés s'appliquant aux ordonnanceurs d'E/S sous Linux]{Contexte des langages dédiés s'appliquant aux or-donnanceurs d'E/S sous Linux}
+\section[Contexte des langages dédiés s'appliquant aux ordonnanceurs d'E/S sous Linux (A CHANGER)]{Contexte des langages dédiés s'appliquant aux or-donnanceurs d'E/S sous Linux (A CHANGER)}
 \label{context}
 
-\subsection{Les planificateurs d'E/S de Linux}
+\subsection{Les planificateurs d'E/S}
 
 Dans leur fonctionnement, les ordonnanceurs de lecture (sortie) et d'écriture 
 (entrée) tentent d'améliorer le débit en réorganisant l'accès aux requêtes dans 
@@ -16,6 +16,8 @@ Différentes approches ont été adoptées pour divers planificateurs d'E/S et
 chacun a ses propres forces et faiblesses et de manière générale, il n'y a pas 
 de planificateur d'E/S par défaut parfait pour toute la gamme de requêtes d'E/S 
 qu'un système peut rencontrer. 
+
+\subsection{État de l'art}
 
 Historiquement, les premiers algorithmes d'ordonnancement qui ont été 
 développés se sont basés sur la structure interne des disques durs de l'époque, 
@@ -98,7 +100,7 @@ planificateurs existant dans Linux :
     \end{tabularx}
 \end{center}
 
-\subsection{Le choix de PhaistOS}
+\vspace{5mm}
 
 Tout ces ordonnanceurs présentés précédemment ont cependant tous un point 
 commun, ils sont écris à la main par un développeur du noyau Linux. Le projet 
@@ -106,14 +108,95 @@ VeriAMOS essaye de changer cet aspect en proposant au développeur n'ayant pas
 toute la connaissance du noyau linux de pouvoir créer son propre planificateur 
 facilement grâce à PhaistOS. 
 
-PhaistOS est un DSL comme nous avons pu le voir, il a été développé par Nick Papoulias (ancien membre de l'équipe Erods) comme sujet de post doctorat.
+\subsection{Arborescence du projet}
 
-<présenter la structure de phaistos>
+PhaistOS est un DSL comme nous l'avons compris, il a été développé par Nick 
+Papoulias (ancien membre de l'équipe Erods) comme sujet de post doctorat. Il 
+s'est attelé au développement de PhaistOS avec le langage de programmation 
+Ocaml et a organisé l'architecture du DSL de la sorte :
 
-<présenter le fonctionnement de phaistos>
+\begin{figure}[h!t] \centering
+    %\includegraphics[width=12.5cm]{images/arch}
+    \caption{Architecture du projet PhaistOS.}
+    \label{fig:arch}
+\end{figure}
+
+Dans cette arborescence, on retrouve deux sections principales, et des sections 
+secondaires. Concernant les sections principales, on retrouve évidemment le 
+DSL, qui contiendra tous les outils nécessaires pour couvrir les objectifs de 
+VeriAMOS, et on retrouvera aussi Matryoshka, qui permettra au prochain 
+developpeur de mettre en place son environement de travail pour effectuer ses 
+tests assez facilement. Les sections secondaires comprennent les tests de 
+performances ainsi que la documentation générale, mais aussi d'autres moins 
+significatives, qui n'ont pas été couvertes par mon stage (comme par exemple 
+les fichiers de configuration Gitlab, ou les images Docker qu'avait mis en 
+place Nick à l'époque).
+
+\subsection{Fonctionnement du DSL}
+
+Comme expliqué dans la Partie~\ref{why_phaistos}, PhaistOS possède un 
+compilateur, un analyseur statique, et se base sur une politique écrite par un 
+utilisateur final. Cette politique qui permettra de scripter le fonctionnement 
+du planificateur d'E/S est écrite avec le langage du DSL PhaistOS.
+
+\subsubsection{Le langage de PhaistOS}
+
+<présenter le langage de PhaistOS>
+
+\begin{table}[h!t]
+    \centering
+    \begin{tabular}{|l|l|} \hline
+      \textbf{Event} & \textbf{Purpose} \\ \hline
+      \texttt{INIT} & Initialisation de l'ordonnanceur \\
+      \texttt{EXIT} & Nettoyage à la suppression de l'ordonnanceur \\
+      \texttt{INSERT} & Enregistrement d'une nouvelle requête à traiter \\
+      \texttt{REMOVE} & Suppression d'une requête en attente \\
+      \texttt{DISPATCH} & Retourne la prochaine requête à envoyer pour le 
+      disque \\
+      \texttt{MERGE} & Procède à la fusion de deux requêtes \\
+      \texttt{HAS\_WORK} & Indique s'il existe des requêtes en attente \\ \hline
+    \end{tabular}
+    \caption{List des événements PhaistOS}
+    \label{tab:phaistos-events}
+\end{table}
+
+\subsubsection{l'outillage de PhaistOS}
+
+<présenter l'architecture du compilateur>
+
+<présenter les fichier .ast>
+
+<présenter les templates>
+
+\subsubsection{Vérification statique}
+
+En réalité, comme on le voit sur la figure \ref{fig:arch}, il existe trois 
+analyseurs : 
+\begin{enumerate}
+    \item Un analyseur sémantique de base, contenu dans \texttt{Static-Analysis}
+    , écrit en Ocaml. Il permettra de vérifier l'arborescence et la sémantique 
+    de la politique de l'utilisateur final. Pour cela il vérifie des règles de 
+    bases, comme le parenthésage ou la présence de certains champs obligatoires.
+    \item Un analyseur de type contenu dans \texttt{TypeSystem}, écrit en OCaml 
+    et qui vient compléter l'analyseur précédent. Il vérifiera que les types 
+    utilisés dans la politique écrite par l'utilisateur final sont corrects.
+    \item Un vérificateur de propriétés de sécurité dans \texttt
+    {Linear-Logic-Analysis}, concernant l'utilisation de l'API des requêtes d'E/
+    S de Linux, à l'aide d'un outil externe, Celf~\cite{schack2008celf}.
+\end{enumerate}
+Mon stage n'a pas porté sur les analyseurs statiques, cependant les analyseurs 
+écrits en Ocaml se rapproche de par leurs fonctionnement, au reste du DSL, j'ai 
+donc pu travailler certains de leurs aspects.
+
+% Pour comprendre le fonctionnement des analyseurs écrits en Ocaml, il faut 
+% d'abord comprendre celui du DSL de manière générale.
+
+\subsubsection{PhaistOS dans Linux}
 
 <présenter son implémentation dans linux A MON ARRIVEE>
 
-<revenir sur les choses non-complétées>
+\subsection{Et ensuite ?}
+
+<revenir sur les choses non-réalisées/complétées>
 
 % L'analyseur en question est en réalité séparé en deux parties : une partie qui s'occupe de la vérifications des types et une autre pour exercer des vérifications spécifiques au domaine, qui utilise un système de preuve par logique linéaire.

@@ -1,2 +1,46 @@
+\appendix
 \section{Annexes}
 \label{appendix}
+\begin{figure}[h!t]
+    \centering
+    \begin{lstlisting}[language=Phaistos]
+EVENTS {
+    On INIT() do: {
+        init(POLICY.fifo_list[READ]); 
+        init(POLICY.fifo_list[WRITE]);
+        ...
+        POLICY.fifo_expire[READ]=read_expire;
+        POLICY.fifo_expire[WRITE]=write_expire; 
+        POLICY.fifo_batch = fifo_batch;
+        POLICY.writes_starved = writes_starved;
+        POLICY.starved = 0;
+        POLICY.batching = 0;
+    }
+    On DISPATCH(request rq) do: {
+        bool reads; 
+        bool writes;
+        reads = !is_empty(POLICY.fifo_list[READ]);
+        writes = !is_empty(POLICY.fifo_list[WRITE]);
+        if(rq && POLICY.batching < POLICY.fifo_batch) {
+            POLICY.batching++;
+            return rq;
+        }
+        if(reads) {
+            if (deadline_fifo_request(WRITE) &&
+            POLICY.starved++ >= POLICY.writes_starved) {
+                return dispatch_writes();
+            }
+            return dispatch_reads();
+        }
+        if(writes) {
+            return dispatch_writes();
+        }
+        return rq; 
+    }
+    ...
+}
+    \end{lstlisting}
+    \caption{Exemple d'une définition des événements \texttt{INIT} et \texttt{DISPATCH} écrite dans le langage du DSL}
+    \label{fig:event-code}
+\end{figure}
+  

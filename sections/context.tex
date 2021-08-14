@@ -25,11 +25,11 @@ que l'on retrouve aujourd'hui encore dans beaucoup d'ordinateur. Cette
 structure organisée par secteurs de données sur plateaux était lue par une tête 
 de lecture unique, limitant ainsi les actions possibles sur le disque à une 
 seule écriture ou une seule lecture à la fois. Les algorithmes de l'époque ont 
-donc étaient développés en conséquence, et sont devenus au fur et à mesure du 
+donc été développés en conséquence, et sont devenus au fur et à mesure du 
 temps obsolètes. La sortie de nouvelles technologies à la mémoire flash, comme 
 les disques SSD (Solid-State Drive) ont offert la possibilité de pouvoir 
 effectuer plusieurs lectures et plusieurs écritures de manière simultanée. Ces 
-nouvelles technologies ont donc donnée naissance à de nouveaux algorithmes, 
+nouvelles technologies ont donc donné naissance à de nouveaux algorithmes, 
 comme BFQ en 2003, ou Kyber, développé en 2017 par Facebook.
 
 Aujourd'hui dans Linux il existe plusieurs ordonnanceurs, tous ayant une 
@@ -42,7 +42,7 @@ requêtes d'E/S aux différents fils d'exécution du noyau qui seront ensuite
 distribués aux différents processeurs. On retrouvera une liste exhaustive des 
 planificateurs existant dans Linux en annexe dans la Table~\ref{tab:politics}.
 
-Tout ces ordonnanceurs ont cependant tous un point commun, ils sont écris à la 
+Tous ces ordonnanceurs ont cependant tous un point commun, ils sont écrits à la 
 main par un développeur du noyau Linux. Le projet VeriAMOS essaye de changer 
 cet aspect en proposant au développeur n'ayant pas toute la connaissance du 
 noyau linux de pouvoir créer son propre planificateur facilement grâce à 
@@ -53,7 +53,7 @@ PhaistOS.
 PhaistOS est un DSL comme nous l'avons compris, il a été développé par Nick 
 Papoulias (ancien membre de l'équipe Erods) comme sujet de post doctorat. Il 
 s'est attelé au développement de PhaistOS avec le langage de programmation 
-Ocaml et a organisé l'architecture du projet d'une certaine manière, qu'on 
+Ocaml et a organisé l'architecture du projet d'une certaine manière, que l'on 
 retrouve dans la Figure~\ref{fig:arch} en annexe.
 
 Dans cette arborescence, on retrouve deux sections principales, et des sections 
@@ -159,8 +159,8 @@ PhaistOS s'est décomposé en trois parties : un parseur en charge de l'analyse
 syntaxique et de l'interprétation, des analyseurs pour valider les politiques, 
 et quelques programmes de génération pour aider les deux parties précédentes. 
 La Figure~\ref{fig:compiler} résume à travers un schéma le récapitulatif du 
-processus de fonctionnement du compilateur pour ses trois parties : le parseur 
-apparaît en rouge, les analyseurs en violet, et le générateur en vert.
+fonctionnement du compilateur, où l'on retrouve es trois parties : le parseur 
+en rouge, les analyseurs en violet, et le générateur en vert.
 
 \begin{figure}[h!t] \centering
     \includegraphics[width=\textwidth]{images/compiler}
@@ -171,15 +171,15 @@ apparaît en rouge, les analyseurs en violet, et le générateur en vert.
 \subsubsubsection{Les fichiers AST}
 \label{ast_files}
 
-On remarque sur ce schéma que certaines entités importante, comme le parseur, 
-sont issus d'une génération partielle, cela signifie que certains des fichiers 
-du code source utilisé par le parseur sont générés. Le générateur en question 
+On remarque sur ce schéma que certaines entités importantes, comme le parseur, 
+sont issues d'une génération partielle, cela signifie que certains des fichiers 
+du code source utilisés par le parseur sont générés. Le générateur en question 
 s'appelle ``le parseur d'arbre à syntaxe abstraite interrogeable'' (``Queryable 
 AST Parser'' en anglais). Son but est de transformer une description d'AST (un 
-arbre abstrait) contenu dans un fichier, en code source Ocaml pouvant modéliser 
-chaque noeud de l'arbre (grace à un système d'objet propre au langage) et les 
-parcourir à l'aide d'un visiteur dédié à cet arbre. Le fichier contenant ce 
-code source généré s'appelle de manière générale \texttt{ast.ml}.
+arbre abstrait) contenue dans un fichier, en code source Ocaml pouvant 
+modéliser chaque noeud de l'arbre (grace à un système d'objet propre au 
+langage) et les parcourir à l'aide d'un visiteur dédié à cet arbre. Le fichier 
+contenant ce code source généré s'appelle de manière générale \texttt{ast.ml}.
 
 Par exemple, dans le cas du parseur, on fournira au générateur la description 
 d'un AST qui définit la structure que doit avoir les politiques écrites par les 
@@ -212,7 +212,7 @@ event (name: string, typeName: string option,
     \label{fig:policy_ast}
 \end{figure}
 
-Concrétement, le code Ocaml du générateur prend un fichier \texttt{.ast} en 
+Concrètement, le code Ocaml du générateur prend un fichier \texttt{.ast} en 
 entrée et utilise les bibliothèques Menhir et Ocamllex pour parser son contenu. 
 Il va ensuite générer une sortie sous forme de code source Ocaml qui contiendra 
 une classe pour chaque noeud de l'AST (voir Figure~\ref{fig:equivalent_script})
@@ -243,10 +243,10 @@ end
 Cette visite de noeud est importante car elle permettra au parseur par la suite 
 de la parcourir la politique utilisateur et d'effectuer des actions 
 particulières pour chaque noeud. Le comportement à adopter pour chaque noeud 
-est décrit dans un \textbf{modèle}, et chaque modèle arbord un langage 
+est décrit dans un \textbf{modèle}, et chaque modèle arbore un langage 
 simplifié. Les modèles sont contenus dans des fichiers à part et nous 
 permettent de maintenir le DSL facilement sans se préoccuper des lignes de code 
-principales. Pour comprendre comment les ils fonctionnent nous allons prendre 
+principales. Pour comprendre comment ils fonctionnent nous allons prendre 
 l'exemple du modèle utilisé pour le noeud \texttt{event} (Figure~\ref
 {fig:event_template}) qui va servir à générer le code C associé à un événement.
 
@@ -326,7 +326,7 @@ on le voit sur la Figure~\ref{fig:arch} en annexe, il existe trois analyseurs :
 \end{enumerate}
 
 Mon stage n'a pas porté sur les analyseurs statiques, cependant les analyseurs 
-écrits en Ocaml se rapproche de par leurs fonctionnement, au reste du DSL 
+écrits en Ocaml se rapprochent de par leurs fonctionnements, au reste du DSL 
 (comme nous avons pu le voir dans la Partie~\ref{templ_visitor}), j'ai donc pu 
 travailler certains de leurs aspects.
 

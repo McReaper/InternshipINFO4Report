@@ -5,14 +5,14 @@
 ``PhaistOS'' est le nom d'un Langage Dédié, ou Domain Specific Language (DSL) 
 en anglais. Utilisé dans le domaine de l'ordonnancement des entrées/sorties (E/
 S) d'un système d'exploitation (SE), il a pour but de faciliter la conception 
-et la validation de politiques d'E/S écrite par un utilisateur. Il est le 
-fruit issu du projet VeriAMOS ayant pour but de s'attaquer au problème de vérification d'une classe de services de systèmes d'exploitation.
+et la validation de politiques d'E/S écrites par un utilisateur. Il est le 
+fruit issu du projet VeriAMOS visant à s'attaquer au problème de vérification d'une classe de services de systèmes d'exploitation.
 
 \subsection{Pourquoi PhaistOS ?}
 \label{why_phaistos}
 
-Il faut tout d'abord expliquer pourquoi VeriAMOS à lieu d'être. En effet ce 
-projet à pour but d'améliorer la vérification de systèmes d'exploitation, qui 
+Il faut tout d'abord expliquer pourquoi VeriAMOS a lieu d'être. En effet ce 
+projet a pour but d'améliorer la vérification de systèmes d'exploitation, qui 
 reste aujourd'hui compliqué pour deux raisons principales. Premièrement, les 
 propriétés mathématiques des algorithmes sous-jacents sont généralement 
 difficiles à exprimer, deuxièmement, la structure du code qui implémente ces 
@@ -39,7 +39,7 @@ compilateur du DSL.
 VeriAMOS offre une opportunité de formaliser et d'implémenter une nouvelle 
 approche à la vérification de systèmes d'exploitation, sur différents services. 
 Ici nous nous focaliserons sur celui de l'ordonnanceur d'E/S du système, mais 
-nous pensons que cette approche reste générale et pourrait s'appliquer sur tout 
+nous pensons que cette approche reste générale et pourrait s'appliquer sur tous 
 types d'ordonnanceurs, de systèmes de fichier, etc.
 
 \subsection{Mon rôle dans ce projet}
@@ -64,7 +64,7 @@ PhaistOS (plus de détails sur ma contribution au projet dans la Partie~\ref
 
 \subsection{Pré-requis}
 
-Avant de commencer ma mission, il a fallut que je me familiarise avec mon 
+Avant de commencer ma mission, il a fallu que je me familiarise avec mon 
 environement de travail, surtout avec les outils que j'allais utiliser. Pour 
 comprendre et bien aborder ce qui allait suivre, j'ai du lire des extraits de 
 documentation, des pages de wikis, et même des fois des forums.
@@ -75,20 +75,20 @@ un module (intégré de base dans le SE ou non), et que l'ordonnanceur actif est
 contenu dans un fichier particulier \cite{IOSchedulers} du système (changer le 
 contenu du fichier change l'ordonnanceur actif).
 
-Il a fallut ensuite que je me familiarise avec l'environement de travail 
+Il a fallu ensuite que je me familiarise avec l'environement de travail 
 virtuel qui m'était proposé, c'est-à-dire ce qui existait déjà sur le projet, 
 comprenant la documentation, les exemples, le moyen employé pour implémenter 
 PhaistOS dans le système et pour finir le code source de PhaistOS des 
 différents dépôts de système de versions Git hébergés sur la plateforme \href
 {https://gitlab.inria.fr/}{Gitlab}.
 
-Plus tard, j'ai du utiliser un réseau de serveurs français dédié à la recherche 
+Plus tard, j'ai dû utiliser un réseau de serveurs français dédié à la recherche 
 appelé Grid'5000 pour effectuer des tests sur des machines plus performantes 
-que ma machine personnelle. Pour cela j'ai du respecter une charte 
+que ma machine personnelle. Pour cela j'ai dû respecter une charte 
 d'utilisation et apprendre les commandes propres à l'utilisation de la 
-plateforme. À ce niveau là du stage, une connaissance fondamentale des systèmes 
+plateforme. À ce niveau-là du stage, une connaissance fondamentale des systèmes 
 d'exploitation était nécessaire pour chaque installation sur les machines 
 distantes.
 
 Et pour finir, je devais maîtriser et mettre en place des outils de benchmark 
-que nous avions désignés avec mon tuteur. 
+que nous avions désigné avec mon tuteur. 

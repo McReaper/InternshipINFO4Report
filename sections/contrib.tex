@@ -29,11 +29,155 @@ suivant :
 
 \subsection{Documentation du projet}
 
-<expliqué ce qui a été fait sans rentrer dans trop de détails>
+Une de mes premières contributions de mon stage, qui est aussi la plus 
+importante, consistait à comprendre et documenter les différentes sections du 
+compilateur PhaistOS. À mon arrivée sur le projet, chaque sous-dossier du DSL 
+(voir Figure~\ref{fig:arch}, en annexe) comportait un fichier \texttt{README.
+md} vide. Je n'avais donc aucune description précise du rôle de chaque 
+sous-dossier, et la légère documentation laisée derrière lui par Nick n'était 
+pas assez clair ou des fois trop complexe, pour que je puisse comprendre de 
+quoi il en retournait. J'ai donc commencé à lire le code de chaque répertoire, 
+et progressivement j'ai commencé à comprendre quel était le rôle de chacun. 
+J'ai donc remplit le \texttt{README.md} de chaque partie du compilateur en 
+amenant dans ma description le plus de détails possible, en décrivant même le 
+rôle de chaque fichier du répertoire dans certains cas. 
+
+Dans chaque dossier il existait des scripts permettant de faire les appels aux 
+exécutables, comme le visiteur de modèle par exemple, ou tout simplement 
+l'exécutable local. Ces scripts ont été remplacés pour laisser place à des 
+\texttt{Makefile}. Ces Makefile peuvent s'appeller entre eux, comme les scripts 
+le faisaient avant, et possèdent une description propre à chacun dans le \texttt
+{README.md} du dossier associé.
 
 \subsection{Restructuration du code source du compilateur} 
 \label{warnings}
 
+Durant mon stage, je me suis rendu compte que la compilation du code Ocaml 
+était trop verbeuse. En effet elle génèrait une quantité phénoménale 
+d'avertissements, assez pour que le buffer de mon terminal ne puisse pas suivre 
+la route au bout de deux compilations. J'ai donc pris la décision de 
+restructurer le code d'un des dossiers du DSL pour montrer qu'il est possible 
+de supprimer tout ces avertissements à la compilation du code source.
+
+\subsubsection{Le problème}
+
+Dans la plupart des dossiers du compilateur (\texttt{Abstract-Template-Visitor}
+, \texttt{Parser}, \texttt{Linear-Logic-Analysis}, \texttt{Static-Analysis}, 
+etc.), on retrouve le fichier \texttt{ast.ml} généré par \texttt
+{Abstract-Syntax-Hierarchy}, dont j'explique l'origine Partie~\ref{ast_files}. 
+Ces fichiers \texttt{ast.ml} se basent sur une structure prédéfinie, qui 
+contient les classes pour chaque noeud de l'AST, ainsi que le visiteur pour les 
+parcourir. Cependant la structure de ces fichiers n'est pas bonne car à la 
+compilation un grand nombre d'avertissements sont générés. Tout ces 
+avertissements proviennent de la ligne :
+
+\vspace{3mm}
+\texttt{\#include "visitorInternalDsl.ml"}
+\vspace{3mm}
+
+Cette insctruction présente à chaque début des méthodes \texttt{visit} permet 
+d'inclure l'API interne écrite en Ocaml nécessaire pour les modèles. Pour 
+revenir sur l'exemple de la Partie~\ref{templ_visitor}, la méthode \texttt
+{atPut} vient de cette API. Seulement voilà, cette API est incluse dans le code 
+source durant la précompilation autant de fois qu'il y a de méthode \texttt
+{visit}, c'est-à-dire environ trente fois. Et évidemment, chaque modèle 
+n'utilise pas toutes les fonctions fournies par l'API, alors Ocaml produit un 
+avertissement pour le développeur.
+
+A ce moment là tout le monde se dit qu'inclure cette API au début du code 
+réglerait pas mal de problèmes, sauf que la solution est bien plus complexe 
+qu'elle en a l'air, et je comprends pourquoi Nick a procédé de cette manière.
+
+En faite le code possède une dépendance cyclique entre les objets qui 
+représente les noeuds de l'arbre, et le visiteur. Car les noeuds doivent 
+connaitre la classe \texttt{visitor} et le visiteur doit connaitre chaque 
+classe de noeud, toutes les classes sont donc déclarées de manière récursive 
+dans le code. De plus, l'API doit connaitre à la fois les noeuds et le 
+visiteur, pour certaines fonctions. Cependant le langage Ocaml ne permet pas de 
+déclarer récursivement des classes avec des fonctions, la connaissance 
+récursive de deux entités à la sémantique différente n'est pas possible en 
+Ocaml. C'est pour cette raison que Nick à décider de mettre le code de l'API 
+directement dans les méthodes du visiteur.
+
+\subsubsection{La solution}
+
+Cependant il existe une solution capable de régler tout les problèmes qui 
+n'était pas aisée de trouver. Après avoir tenter de déclarer l'interface de 
+l'API en début de fichier puis de la définir en fin de fichier sans succès 
+(après la déclaration des noeuds et du visiteur). Je me suis penché sur 
+l'utilisation des modules, et j'ai appris qu'il était possible de les déclarer 
+récursivement à condition que leur signature (interface) soit complète. J'ai 
+donc obtenu la signature des classes d'objets des noeuds, de celui du visiteur 
+et de l'API avec le compilateur \texttt{ocamlc} et l'option \texttt{-i}. J'ai 
+ensuite revisité le code généré du fichier \texttt{ast.ml} pour déclarer sous 
+forme de modules récursifs le visiteur, les noeuds et l'API, satisfaisant ainsi 
+la dépendance cyclique.
+
+A partir de ces changements, il suffisait de régler à la main les derniers 
+avertissements, comme par exemple ceux de la bibliothèque Mehnir qui nous 
+indiquait qu'il éxistait des conflits ``shift/reduce'' dans la grammaire 
+utilisée pour parser les politiques PhaistOS. Ces conflits étaient juste dû à 
+des ambiguïtés liés à deux règles de la grammaire que Mehnir n'arrivait pas à 
+départager (quelle règle choisir en fonction de ce qui est lu par le parseur). 
+
+\subsubsection{L'impacte}
+
+Grâce à ces changement, le mainteneur du compilateur gagne en visibilité lors 
+de sa phase de rédaction du code : dès la compilation, il pourra s'apercevoir 
+si son programme Ocaml a un problème ou non. Cependant, ces changements dans la 
+structure du code ont une impacte qui n'est pas des moindres puisqu'ils 
+demandent de changer la génération de code pour reproduire la structure que 
+j'ai mis en place dans tout les autres parties du DSL, cependant ces 
+changements que j'ai effectué dans le répertoire \texttt{Static-Analysis} ne 
+conviendront peut être pas pour d'autre fichiers \texttt{ast.ml}.
+
+\begin{center}
+---
+\end{center}
+
+J'ai donc montré qu'il était possible de se débarasser de \textbf{tous} les 
+avertissements à la compilation d'une des parties du DSL. Un travail futur sera 
+de reproduire cette solution de manière générale pour le reste du DSL en 
+changeant le générateur d'AST. 
+
 \subsection{Implémentation des politiques sous forme de modules Linux}
 
+<parler viiiiite fait de l'implem actuelle (avec la seule modification des headers)>
+
+<parler de l'objectif du changement (comment la chose doit etre à la fin)>
+
+<parler de comment j'ai modifié la génération de code avec les templates et de la compilation dans le noyau à chaud avec le makefile>
+
+\begin{center}
+    ---
+\end{center}
+    
+<mini-résumé>
+
+\subsection{Mise en place d'une machine virtuelle pour les tests}
+
+<parler du pourquoi le besoin d'une VM>
+
+<parler de l'état actuelle de l'image laissée par Nick>
+
+<parler des changements apportés>
+
+<parler des scripts de mise en place de l'environement>
+
+\begin{center}
+    ---
+\end{center}
+    
+<mini-résumé>
+
 \subsection{Tests d'analyse de performances}
+
+Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très peu d'impacte sur les performances finales des politiques PhaistOS.
+
+<reprendre plos21.pdf>
+
+\begin{center}
+    ---
+\end{center}
+    
+<mini-résumé>

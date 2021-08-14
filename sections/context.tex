@@ -169,6 +169,7 @@ apparaît en rouge, les analyseurs en violet, et le générateur en vert.
 \end{figure}
 
 \subsubsubsection{Les fichiers AST}
+\label{ast_files}
 
 On remarque sur ce schéma que certaines entités importante, comme le parseur, 
 sont issus d'une génération partielle, cela signifie que certains des fichiers 
@@ -177,7 +178,8 @@ s'appelle ``le parseur d'arbre à syntaxe abstraite interrogeable'' (``Queryable
 AST Parser'' en anglais). Son but est de transformer une description d'AST (un 
 arbre abstrait) contenu dans un fichier, en code source Ocaml pouvant modéliser 
 chaque noeud de l'arbre (grace à un système d'objet propre au langage) et les 
-parcourir à l'aide d'un visiteur dédié à cet arbre. 
+parcourir à l'aide d'un visiteur dédié à cet arbre. Le fichier contenant ce 
+code source généré s'appelle de manière générale \texttt{ast.ml}.
 
 Par exemple, dans le cas du parseur, on fournira au générateur la description 
 d'un AST qui définit la structure que doit avoir les politiques écrites par les 
@@ -356,7 +358,8 @@ utilisée par le DSL (en faisant le parallèle avec le projet Ipanema~\cite
 {lepers2020provable}). Il faudra donc apporter un effort de documentation pour 
 le projet, y compris dans le code, dont l'absence de commentaires rend la tâche 
 de compréhension encore plus ardue. --- ``\textit{Accompagné du mode de travail 
-en distanciel, ce premier point m'aura prit un mois entier de mon stage.}''
+en distanciel et des tâches annexes, ce premier point m'aura prit un mois 
+entier de mon stage.}''
 
 Deuxièment, l'implémentation de PhaistOS dans le système n'est pas idéale car 
 elle demande à l'utilisateur de recompiler tout son système pour qu'il puisse 

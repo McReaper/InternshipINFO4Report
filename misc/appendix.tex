@@ -3,7 +3,7 @@
 \appendix
 
 \newpage
-\section{Définitions des événements d'une politique}
+\section*{Définitions des événements d'une politique}
 \begin{figure}[h!t]
     \centering
     \begin{tabular}{c}
@@ -50,7 +50,7 @@ EVENTS {
 \end{figure}
 
 \newpage
-\section{Arborescence du projet}
+\section*{Arborescence du projet}
 \begin{figure}[h!t] \centering
     \includegraphics[width=\textwidth]{images/arch}
     \caption{Architecture du projet PhaistOS.}
@@ -58,7 +58,7 @@ EVENTS {
 \end{figure}
 
 \newpage
-\section{Les politiques d'ordonnancement de Linux}
+\section*{Les politiques d'ordonnancement de Linux}
 \begin{table}[h!t]
     \begin{tabularx}{\textwidth} { 
         | >{\hsize=0.22\hsize\linewidth=\hsize\raggedright\arraybackslash}X 
@@ -70,7 +70,7 @@ EVENTS {
         \hline
         \hline
         Deadline & Simple & Conçu pour régler les problèmes de famine aperçu 
-        dans d'autrfig:es ordonnanceurs à l'époque. Son algorithme utilise 3 files, 
+        dans d'autres ordonnanceurs à l'époque. Son algorithme utilise 3 files, 
         à savoir une file dite ``triée'' (par priorité), une file de lecture et 
         une file d'écriture. Les requêtes de la file triée sont prioritaires et 
         si une des requêtes des deux autres files expire, elle devient 

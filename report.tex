@@ -6,16 +6,17 @@
 \author{Victor Malod}
 \date{Août 2021}
 
-\usepackage{natbib}        % Pour la bibliographie
-\usepackage{graphicx}      % Pour les insertions d'images
-\usepackage{setspace}      % Pour l'interligne
-\usepackage{geometry}      % Pour la marge dans le document
-\usepackage{fancyhdr}      % Pour l'en-tête et pied de page (plus d'info ici : https://www.overleaf.com/learn/latex/Headers_and_footers)
-\usepackage{nameref}       % Pour reférencer le nom de la section (voir ci dessous)
-\usepackage[french]{babel} % Pour la langue
-\usepackage{hyperref}      % Pour les liens clicables
-\usepackage{microtype}     % Pour la justification du texte
-\usepackage{tabularx}      % Pour des tableaux plus flexible
+\usepackage{natbib}                 % Pour la bibliographie
+\usepackage{graphicx}               % Pour les insertions d'images
+\usepackage{setspace}               % Pour l'interligne
+\usepackage{geometry}               % Pour la marge dans le document
+\usepackage{fancyhdr}               % Pour l'en-tête et pied de page (plus d'info ici : https://www.overleaf.com/learn/latex/Headers_and_footers)
+\usepackage{nameref}                % Pour reférencer le nom de la section (voir ci dessous)
+\usepackage[french]{babel}          % Pour la langue
+\usepackage{hyperref}               % Pour les liens clicables
+\usepackage{microtype}              % Pour la justification du texte
+\usepackage{tabularx}               % Pour des tableaux plus flexible
+\usepackage[threshold=1]{csquotes}  % Pour les blocs de citations
 \makeatletter
 \newcommand*{\currentname}{\@currentlabelname}
 \makeatother
@@ -119,6 +120,10 @@
 \lhead{Victor M.}
 \rfoot{\thepage}
 \renewcommand{\headrulewidth}{0pt}
+% Pour la commande \subsubsubsection{}
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\vspace{4mm}}
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% DEBUT DE DOCUMENT %%

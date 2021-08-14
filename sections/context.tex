@@ -1,4 +1,4 @@
-\section[Contexte des langages dédiés s'appliquant aux ordonnanceurs d'E/S sous Linux (A CHANGER)]{Contexte des langages dédiés s'appliquant aux or-donnanceurs d'E/S sous Linux (A CHANGER)}
+\section{TO DEFINE}
 \label{context}
 
 \subsection{Les planificateurs d'E/S}
@@ -154,20 +154,21 @@ regroupées en une seule.
 
 \subsubsection{L'outillage de PhaistOS}
 
-Pour faire en sorte de construire un compilateur pour notre DSL, l'ensemble de 
-l'outillage PhaistOS s'est décomposé en trois parties : un parseur en charge de 
-l'analyse syntaxique et de l'interprétation, des analyseurs pour valider les 
-politiques, et quelques programmes de génération pour aider les deux parties 
-précédentes. La Figure~\ref{fig:compiler} résume à travers un schéma le 
-récapitulatif du processus de fonctionnement du compilateur pour ses trois 
-parties : le parseur apparaît en rouge, les analyseurs en violet, et le 
-générateur en vert.
+Pour construire un compilateur pour notre DSL, l'ensemble de l'outillage 
+PhaistOS s'est décomposé en trois parties : un parseur en charge de l'analyse 
+syntaxique et de l'interprétation, des analyseurs pour valider les politiques, 
+et quelques programmes de génération pour aider les deux parties précédentes. 
+La Figure~\ref{fig:compiler} résume à travers un schéma le récapitulatif du 
+processus de fonctionnement du compilateur pour ses trois parties : le parseur 
+apparaît en rouge, les analyseurs en violet, et le générateur en vert.
 
 \begin{figure}[h!t] \centering
     \includegraphics[width=\textwidth]{images/compiler}
     \caption{Schéma de fonctionnement du compilateur.}
     \label{fig:compiler}
 \end{figure}
+
+\subsubsubsection{Les fichiers AST}
 
 On remarque sur ce schéma que certaines entités importante, comme le parseur, 
 sont issus d'une génération partielle, cela signifie que certains des fichiers 
@@ -176,18 +177,19 @@ s'appelle ``le parseur d'arbre à syntaxe abstraite interrogeable'' (``Queryable
 AST Parser'' en anglais). Son but est de transformer une description d'AST (un 
 arbre abstrait) contenu dans un fichier, en code source Ocaml pouvant modéliser 
 chaque noeud de l'arbre (grace à un système d'objet propre au langage) et les 
-parcourir à l'aide d'un visiteur dédié à cet arbre. Par exemple, dans le cas du 
-parseur, on fournira au générateur la description d'un AST qui définit la 
-structure que doit avoir les politiques écrites par les utilisateurs. Cette 
-description est contenue dans le fichier \texttt{phaistos.ast}, dont un extrait 
-est disponible sur la Figure~\ref{fig:policy_ast}. Comme on peut le voir dans 
-l'extrait à la Ligne~\ref{script_rule}, on retrouve la racine de l'arbre 
-appelée \texttt{script}, le point d'entré qui va contenir toutes les 
-déclarations de haut niveau d'une politique PhaistOS dans la variable \texttt
-{topLevelStmts}. Comme préséntés dans la Partie~\ref{phlang}, on retrouve dans 
-ces déclarations les définitions globales, l'état de la politique et la liste 
-d'événements (Ligne~\ref{globdef}, Ligne~\ref{policydef} et Ligne~\ref
-{eventlist} respectivement).
+parcourir à l'aide d'un visiteur dédié à cet arbre. 
+
+Par exemple, dans le cas du parseur, on fournira au générateur la description 
+d'un AST qui définit la structure que doit avoir les politiques écrites par les 
+utilisateurs. Cette description est contenue dans le fichier \texttt{phaistos.
+ast}, dont un extrait est disponible sur la Figure~\ref{fig:policy_ast}. Comme 
+on peut le voir dans l'extrait à la Ligne~\ref{script_rule}, on retrouve la 
+racine de l'arbre appelée \texttt{script}, le point d'entré qui va contenir 
+toutes les déclarations de haut niveau d'une politique PhaistOS dans la 
+variable \texttt{topLevelStmts}. Comme préséntés dans la Partie~\ref{phlang}, 
+on retrouve dans ces déclarations les définitions globales, l'état de la 
+politique et la liste d'événements (Ligne~\ref{globdef}, Ligne~\ref{policydef} 
+et Ligne~\ref{eventlist} respectivement).
 
 \begin{figure}[h!t] \centering
     \begin{tabular}{c}
@@ -233,14 +235,80 @@ end
     \label{fig:equivalent_script}
 \end{figure}
 
-Cette visite de noeud est importante car elle permettra au parseur par la suite d'effectué une action particulière pour chaque noeud de l'arbre. 
+\subsubsubsection{Le Visiteur de Modèles}
+\label{templ_visitor}
 
-<présenter les templates>
+Cette visite de noeud est importante car elle permettra au parseur par la suite 
+de la parcourir la politique utilisateur et d'effectuer des actions 
+particulières pour chaque noeud. Le comportement à adopter pour chaque noeud 
+est décrit dans un \textbf{modèle}, et chaque modèle arbord un langage 
+simplifié. Les modèles sont contenus dans des fichiers à part et nous 
+permettent de maintenir le DSL facilement sans se préoccuper des lignes de code 
+principales. Pour comprendre comment les ils fonctionnent nous allons prendre 
+l'exemple du modèle utilisé pour le noeud \texttt{event} (Figure~\ref
+{fig:event_template}) qui va servir à générer le code C associé à un événement.
+
+\begin{figure}[h!t]
+    \centering
+    \begin{lstlisting}[language=Phaistos-Template]
+let! type =  [$ (*\label{type_decl}*)
+  match my#typeName with | None -> "void" | Some x -> x $]    
+let! signature = [" (*\label{sig_decl}*)
+  static inline [$use "type"$] on_[$String.lowercase_ascii (*\label{type_call}*)
+  my#name$] (struct iosched_data* dd[{if List.length
+  my#vars > 0 then [","]}] [$forEach my#vars ",  "$])
+"]
+let! default = [{ (*\label{def_decl}*)
+  ignore (self#atPut my#name (String (use "signature"))) }]
+    \end{lstlisting}
+    \caption{Le modèle \texttt{event}}
+    \label{fig:event_template}
+\end{figure}
+
+Comme nous pouvons le voir aux Lignes~\ref{type_decl}~,~\ref{sig_decl}~et~\ref
+{def_decl}, les modèles contiennent des régles dénotées par le mot clé \texttt
+{!let}. Chaque règle est nommée et \texttt{default} est celle qui est 
+interprétée en première, elle contient du code embarqué entre les délimiteurs 
+\texttt{[\{} et \texttt{\}]} prévus à cet effet. Dans notre cas, le code Ocaml 
+ici présent remplit une table de hachage maintenue par le visiteur actuellement 
+sur le noeud \texttt{event} grâce à la méthode \texttt{atPut}, \texttt{self} 
+étant le visiteur et \texttt{my} le noeud. La table de hachage associe au noeud 
+de l'AST son équivalent textuel en C, pour cela elle appelle la règle \texttt
+{signature} qui va produire une sortie textuelle (dénotée par les délimiteurs 
+\texttt{["} et \texttt{"]}) de la signature de l'événement. Dans cette règle on 
+peut insérer du code ayant pour but de générer une sortie sur place avec les 
+délimiteurs \texttt{[\$} et \texttt{\$]} ou sans sortie particulière avec 
+\texttt{[\{} et \texttt{\}]}. La règle \texttt{type} est appelée par \texttt
+{signature} à la Ligne~\ref{type_call}, elle permettra d'écrire dans la 
+signature le type de la fonction événement en cours de traitement.
+
+Les modèles sont puissants, ils modularisent le comportement à adopter pour un 
+noeud de l'arbre, tout en gardant un code relativement simple. On retrouve ce 
+système de modèles dans d'autres parties du compilateur : \textbf{les 
+analyseurs} (Partie~\ref{analyzers}) utilisent leur propres modèles pour 
+exercer leurs vérifications statiques sur l'arbre.
+
+Cependant, les modèles ne sont pas utilisables tels quels, le langage interne 
+des modèles doit être interprété pour pouvoir être retranscrit en quelque chose 
+de compilable par un langage. PhaistOS a donc dans son outillage un \textbf
+{visiteur de modèles}, capable de parcourir ces derniers comme le fait le 
+parseur pour les politiques utilisateur. Mais au lieu d'utiliser le fichier 
+\texttt{phaistos.ast}, il utilisera le fichier \texttt{templateVisitor.ast}, 
+qui décrit la structure des fichiers modèle. Le visiteur de modèles parcours 
+donc ces derniers et les traite pour en ressortir un code Ocaml intégrable par 
+le parseur ou les analyseurs. 
+
+Concrètement, sur la Figure~\ref{fig:equivalent_script}, la méthode \texttt
+{visit\_script} à la Ligne~\ref{visitcall} contiendra le contenu du modèle 
+\texttt{script} traité par le visiteur de modèles.
 
 \subsubsection{Vérification statique}
+\label{analyzers}
 
-En réalité, comme on le voit sur la Figure \ref{fig:arch}, il existe trois 
-analyseurs : 
+Avant qu'une politique soit sujette à être compilée, il faut qu'elle soit 
+validée par les différents analyseurs statiques de PhaistOS. En réalité, comme 
+on le voit sur la Figure~\ref{fig:arch} en annexe, il existe trois analyseurs : 
+
 \begin{enumerate}
     \item Un analyseur sémantique de base, contenu dans \texttt{Static-Analysis}
     , écrit en Ocaml. Il permettra de vérifier l'arborescence et la sémantique 
@@ -248,24 +316,81 @@ analyseurs :
     bases, comme le parenthésage ou la présence de certains champs obligatoires.
     \item Un analyseur de type contenu dans \texttt{TypeSystem}, écrit en OCaml 
     et qui vient compléter l'analyseur précédent. Il vérifiera que les types 
-    utilisés dans la politique écrite par l'utilisateur final sont corrects.
-    \item Un vérificateur de propriétés de sécurité dans \texttt
-    {Linear-Logic-Analysis}, concernant l'utilisation de l'API des requêtes d'E/
-    S de Linux, à l'aide d'un outil externe, Celf~\cite{schack2008celf}.
+    utilisés dans la politique écrite par l'utilisateur sont corrects.
+    \item Un vérificateur de propriétés de sécurité concernant l'utilisation de 
+    l'API des requêtes d'E/S de Linux. Pour cela il utilise l'outil externe 
+    Celf~\cite{schack2008celf} et est contenu dans \texttt
+    {Linear-Logic-Analysis}.
 \end{enumerate}
-Mon stage n'a pas porté sur les analyseurs statiques, cependant les analyseurs 
-écrits en Ocaml se rapproche de par leurs fonctionnement, au reste du DSL, j'ai 
-donc pu travailler certains de leurs aspects.
 
-% Pour comprendre le fonctionnement des analyseurs écrits en Ocaml, il faut 
-% d'abord comprendre celui du DSL de manière générale.
+Mon stage n'a pas porté sur les analyseurs statiques, cependant les analyseurs 
+écrits en Ocaml se rapproche de par leurs fonctionnement, au reste du DSL 
+(comme nous avons pu le voir dans la Partie~\ref{templ_visitor}), j'ai donc pu 
+travailler certains de leurs aspects.
 
 \subsubsection{PhaistOS dans Linux}
 
-<présenter son implémentation dans linux A MON ARRIVEE>
+A mon arrivée sur le projet, PhaistOS utilisait un noyau Linux modifié, qui lui 
+permettait d'inscrire ses propres politiques à la compilation du noyau à 
+travers des fichiers de configuration. Le code source de la politique générée 
+était intégré dans celui du noyau.
+
+L'avantage d'une telle pratique est que le noyau utilisé reste le même et que 
+les dépendances système de PhaistOS ne sont pas pertubées par les dernières 
+mise à jour de Linux. L'inconvénient en revanche est que chaque nouvelle 
+politique écrite par un utilisateur doit être intégrée au noyau, qui devra être 
+recompilé par la suite.
 
 \subsection{Et ensuite ?}
 
-<revenir sur les choses non-réalisées/complétées>
+Dans toute cette architecture (Figure~\ref{fig:arch}, en annexe), PhaistOS fait 
+preuve de forme et arrive a bien séparer les différentes tâches qui lui 
+permettent d'arriver à sa finalité : générer un ordonnanceur d'E/S pour Linux.
 
-% L'analyseur en question est en réalité séparé en deux parties : une partie qui s'occupe de la vérifications des types et une autre pour exercer des vérifications spécifiques au domaine, qui utilise un système de preuve par logique linéaire.
+Cependant, des aspects du compilateur restent à améliorer. Premièrement, la 
+documentation du compilateur est très réduite, voir absente, que ce soit pour 
+sa structure ou son API ; à mon arrivée sur le projet, PhaistOS était pour moi 
+une énigme à résoudre. Étant donné que Nick n'était plus présent sur le projet, 
+je n'avais que Nicolas Palix, mon tuteur, pour m'aider à assimiler les notions 
+utilisée par le DSL (en faisant le parallèle avec le projet Ipanema~\cite
+{lepers2020provable}). Il faudra donc apporter un effort de documentation pour 
+le projet, y compris dans le code, dont l'absence de commentaires rend la tâche 
+de compréhension encore plus ardue. --- ``\textit{Accompagné du mode de travail 
+en distanciel, ce premier point m'aura prit un mois entier de mon stage.}''
+
+Deuxièment, l'implémentation de PhaistOS dans le système n'est pas idéale car 
+elle demande à l'utilisateur de recompiler tout son système pour qu'il puisse 
+intégrer une nouvelle politique. L'objectif pour changer cela est de faire en 
+sorte que les politiques générés par PhaistOS soient intégrable à chaud, dans 
+le système.
+
+Troisièmement, l'effort de compilation des différentes étapes de fonctionnement 
+du DSL génèrent en somme une grande quantité d'avertissements, rendant 
+illisible la sortie de la compilation Ocaml. Ce phénomène est principalement dû 
+à la structure du code, qui fait de multiple inclusions d'un même fichier de 
+fonctions, sans pour autant utiliser toutes les fonctions à chaque inclusion 
+(plus de détails dans la Partie~\ref{warnings}). 
+
+Pour finir, des détails concernant la structure ou l'implémentation du projet 
+doivent être retravaillés, la plupart du temps ces aspects génants du 
+compilateur sont le résultat d'une ancienne implémentation qui n'a pas été mise 
+à jour par Nick :
+\begin{enumerate}
+    \item L'utilisation majeure de scripts shell dans les dossiers du DSL 
+    empechait d'avoir une vision structurée de l'interaction que chacun pouvait 
+    avoir avec les autres. Ce problème peut être réglé avec l'ajout de Makefile.
+    \item Certains modèles présents dans PhaistOS sont erronés ou inutilisés.
+    \item Les fichiers \texttt{.ast} contiennent d'anciennes règles 
+    non-exploitées
+    \item Les grammaires contenues dans les fichiers \texttt{.mly} utilisées 
+    par la bibliothèque Menhir pour parser les politiques ou les modèles 
+    contiennent des conflits qu'il faut corriger, sans quoi cela ajoute encore 
+    plus de verbosité à la compilation du DSL.
+\end{enumerate}
+
+Dans l'ensemble, à mon arrivée, il y avait matière à travailler. L'état actuel 
+de PhaistOS a fait que ma mission se prétait bien à sa description dans la 
+Partie~\ref{mission}. Chacun des points cités précedemment à fait l'objet d'une 
+de mes contributions durant le stage, dans le but d'améliorer le compilateur, 
+et de le rendre plus accessible pour de nouveaux mainteneurs, qui comme moi 
+doivent travailler sur le DSL.

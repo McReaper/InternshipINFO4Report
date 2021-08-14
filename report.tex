@@ -29,76 +29,78 @@
   keywordstyle={\color{purple}},
 }
 \lstdefinelanguage{Phaistos}{
-   morekeywords=[1]{list, int, void, bool, bool, request, req},
-   morekeywords=[2]{const, order, if, else, while, do, until, On, return},
-   morekeywords=[3]{POLICY, HELPERS, EVENTS,INIT, HAS_WORK,DISPATCH, READ, WRITE, HZ, INSERT, REMOVE, EXIT, MERGE},
-   morekeywords=[4]{init,is_empty,is_empty_careful,append,remove,move_to,next_request},
-   keywordstyle=[1]{\color{green}},
-   keywordstyle=[2]{\color{blue}},
-   keywordstyle=[3]{\color{purple}},
-   keywordstyle=[4]{\color{orange}},
-   comment=[l]{//},
-   morecomment=[s]{/*}{*/},
-   commentstyle={\color{blue!60!black}\itshape},
+  morekeywords=[1]{list, int, void, bool, bool, request, req},
+  morekeywords=[2]{const, order, if, else, while, do, until, On, return},
+  morekeywords=[3]{POLICY, HELPERS, EVENTS,INIT, HAS_WORK,DISPATCH, READ, WRITE, HZ, INSERT, REMOVE, EXIT, MERGE},
+  morekeywords=[4]{init,is_empty,is_empty_careful,append,remove,move_to,next_request},
+  keywordstyle=[1]{\color{green}},
+  keywordstyle=[2]{\color{blue}},
+  keywordstyle=[3]{\color{purple}},
+  keywordstyle=[4]{\color{orange}},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle={\color{blue!60!black}\itshape},
   numbersep=1em,xleftmargin=2em,
-   sensitive=true
+  sensitive=true
 }
 \lstdefinelanguage{Phaistos-Template}{
-    alsoletter = {!},
-    morekeywords=[1]{list, int, void, bool, string, request, req, option},
-    morekeywords=[2]{const, order, if, then, else, while, do, until, On, return},
-    morekeywords=[3]{match, with, None, Some, ignore, self, my,
-      String, let, List, string_of_int,map,in},
-    morekeywords=[4]{use,forEach_at,forEach,pushNamedScope,callEach,typeAssert,popScope},
-    morekeywords=[5]{let!},
-    keywordstyle=[1]{\color{green}},
-    keywordstyle=[2]{\color{blue}},
-    keywordstyle=[3]{\color{purple}},
-    keywordstyle=[4]{\color{orange}},
-    keywordstyle=[5]{\color{magenta}},
-    comment=[l]{//},
-    morecomment=[s]{/*}{*/},
-    commentstyle={\color{blue!60!black}\itshape},
+  alsoletter = {!},
+  morekeywords=[1]{list, int, void, bool, string, request, req, option},
+  morekeywords=[2]{const, order, if, then, else, while, do, until, On, return},
+  morekeywords=[3]{match, with, None, Some, ignore, self, my,
+    String, let, List, string_of_int,map,in},
+  morekeywords=[4]{use,forEach_at,forEach,pushNamedScope,callEach,typeAssert,popScope},
+  morekeywords=[5]{let!},
+  keywordstyle=[1]{\color{green}},
+  keywordstyle=[2]{\color{blue}},
+  keywordstyle=[3]{\color{purple}},
+  keywordstyle=[4]{\color{orange}},
+  keywordstyle=[5]{\color{magenta}},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle={\color{blue!60!black}\itshape},
   numbersep=1em,xleftmargin=2em,
-    sensitive=true,
-    literate= 
-    *{[\$}{{{\bf\color{cyan}[\$}}}2
-    {\$]}{{{\bf\color{cyan}\$]}}}2
-    {["}{{{\bf\color{cyan}["}}}2
-    {"]}{{{\bf\color{cyan}"]}}}2
-    {[\{}{{{\bf\color{cyan}[\{}}}2
-    {\}]}{{{\bf\color{cyan}\}]}}}2
+  sensitive=true,
+  literate= 
+  *{[\$}{{{\bf\color{cyan}[\$}}}2
+  {\$]}{{{\bf\color{cyan}\$]}}}2
+  {["}{{{\bf\color{cyan}["}}}2
+  {"]}{{{\bf\color{cyan}"]}}}2
+  {[\{}{{{\bf\color{cyan}[\{}}}2
+  {\}]}{{{\bf\color{cyan}\}]}}}2
 }
 \lstdefinelanguage{Phaistos-AST}{
-    morekeywords=[1]{list,string,option},
-    morekeywords=[2]{topLevel, funcDefinition, eventAction, event, script, helpers, actions, eventDeclaration},
-    keywordstyle=[1]{\color{green}},
-    keywordstyle=[2]{\color{blue}},
-    comment=[l]{//},
-    morecomment=[s]{/*}{*/},
-    commentstyle={\color{blue!60!black}\itshape},
+  morekeywords=[1]{list,string,option},
+  morekeywords=[2]{topLevel, globalDefinition, policyDeclaration, event, script, varDecl, expression, eventDeclaration, visitor},
+  morekeywords=[3]{val, object, method, mutable, as},
+  keywordstyle=[1]{\color{green}},
+  keywordstyle=[2]{\color{blue}},
+  keywordstyle=[3]{\color{purple}},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle={\color{blue!60!black}\itshape},
   numbersep=1em,xleftmargin=2em,
-    sensitive=true
+  sensitive=true
 }
 \lstdefinelanguage{Makefile}{
-    morekeywords=[1]{MAKE, CURDIR},
-    morekeywords=[2]{-s, -C},
-    keywordstyle=[1]{\color{green}},
-    keywordstyle=[2]{\color{blue}},
-    comment=[l]{\#},
-    commentstyle={\color{blue!60!black}\itshape},
-    sensitive=true,
+  morekeywords=[1]{MAKE, CURDIR},
+  morekeywords=[2]{-s, -C},
+  keywordstyle=[1]{\color{green}},
+  keywordstyle=[2]{\color{blue}},
+  comment=[l]{\#},
+  commentstyle={\color{blue!60!black}\itshape},
+  sensitive=true,
   numbersep=1em,xleftmargin=2em,
-    literate= *{\$}{{{\color{orange}\$}}}1
+  literate= *{\$}{{{\color{orange}\$}}}1
 }
 \lstdefinelanguage{Dune}{
-    morekeywords=[1]{executable, preprocess, name, libraries},
-    morekeywords=[2]{flags, action, run},
-    keywordstyle=[1]{\color{green}},
-    keywordstyle=[2]{\color{blue}},
-    sensitive=true,
+  morekeywords=[1]{executable, preprocess, name, libraries},
+  morekeywords=[2]{flags, action, run},
+  keywordstyle=[1]{\color{green}},
+  keywordstyle=[2]{\color{blue}},
+  sensitive=true,
   numbersep=1em,xleftmargin=2em,
-    literate= *{\%}{{{\color{orange}\%}}}1
+  literate= *{\%}{{{\color{orange}\%}}}1
 }
 
 % Pour toutes caractéristiques du texte dans le rapport
@@ -137,7 +139,6 @@
 \bibliographystyle{plain}
 \bibliography{misc/references}
 
-\appendix
 \input{misc/appendix}
 
 \input{misc/back_cover}

@@ -96,8 +96,7 @@ dans le code. De plus, l'API doit connaitre à la fois les noeuds et le
 visiteur, pour certaines fonctions. Cependant le langage Ocaml ne permet pas de 
 déclarer récursivement des classes avec des fonctions, la connaissance 
 récursive de deux entités à la sémantique différente n'est pas possible en 
-Ocaml. C'est pour cette raison que Nick à décider de mettre le code de l'API 
-directement dans les méthodes du visiteur.
+Ocaml. C'est pour cette raison je présume que Nick à décider de mettre le code de l'API directement dans les méthodes du visiteur.
 
 \subsubsection{La solution}
 
@@ -141,31 +140,131 @@ de reproduire cette solution de manière générale pour le reste du DSL en
 changeant le générateur d'AST. 
 
 \subsection{Implémentation des politiques sous forme de modules Linux}
+\label{module}
 
-<parler viiiiite fait de l'implem actuelle (avec la seule modification des headers)>
+A mon arrivée sur le stage, les politiques utilisateurs PhaistOS étaient 
+générées séparemment dans plusieurs fichiers. Un fichier principal qui ne 
+change jamais, qui est le squelette qui accueil quatre inclusions de fichiers 
+secondaires, qui eux diffèrent en fonction de la politique utilisateur. Ces 
+quatres fichiers étaient répartis dans un dossier ajouté dans le noyau Linux 
+juste en dessous du dossier contenant les autres ordonnanceurs du système, 
+comme par exemple BFQ, MQ-Deadline ou PhaistOS (voir Figure~\ref
+{fig:modules_folder}). A chaque génération, PhaistOS produisait le code des 
+fichiers secondaires séparemment et l'utilisateur devait alors les remplaçait 
+et compiler le noyau Linux pour que sa politique puisse prendre effet.
 
-<parler de l'objectif du changement (comment la chose doit etre à la fin)>
+\begin{figure}[h!t] \centering
+    \textbf{TODO}
+    %\includegraphics[width=\textwidth]{images/compiler}
+    \caption{Schéma de l'arborescence du dossier \texttt{block} dans le code 
+    source Linux, augmenté par PhaistOS}
+    \label{fig:modules_folder}
+\end{figure}
 
-<parler de comment j'ai modifié la génération de code avec les templates et de la compilation dans le noyau à chaud avec le makefile>
+L'objectif était ici de changer cette méthode d'implémentation, et de faire en 
+sorte que le code généré puisse être indépendant (on peut créer autant de 
+politique qu'on le souhaite, sans que celles-ci se marchent dessus) et qu'il 
+soit intégrable à chaud dans le noyau.
+
+Pour cela j'ai commencé par me renseigner sur les autres ordonnanceurs, et j'ai 
+appris que l'ordonnanceur Kyber, développé par Facebook était un module que 
+l'on pouvait imbriquer et désimbriquer à volonté. 
+
+Premièrement j'ai donc appris comment créer mon propre module : il me fallait 
+une recette, autrement dit un Makefile, ainsi qu'un fichier \texttt{.mk} 
+contenant une liste de dépendances si nécessaire. Le code généré devait avoir 
+certaines particularités pour s'enregistrer auprès du système en tant que 
+module, et bien heureusement PhaistOS comportait déjà ces pré-requis dans son 
+fichier principal qui servait de squelette.
+
+Deuxièmement, j'ai du modifier la génération pour qu'elle soit plus dynamique, 
+cela inclu le squelette qui devait pouvoir s'enregistrer auprès du système sous 
+différents noms, pour ne pas provoquer d'erreur à l'insertion du module. Comme 
+on peut le voir dans la Figure~\ref{fig:module_name_c}, le modèle \texttt
+{script} qui sert de point d'entrée dans l'AST (comme on l'a vu dans la 
+Partie~\ref{ast_files}) a été modifié pour que celui-ci génère le squelette 
+ainsi que les fichiers secondaires. Dans cet extrait on retrouve les 
+délimiteurs \texttt{[\$} et \texttt{\$]} qui je rappelle vont produire une 
+sortie textuelle de leur contenu, autrement dit, dans ce cas il s'agit du nom 
+du module choisi par l'utilisateur. Dans ce même modèle, la génération des 
+fichiers secondaires est restée quasiment inchangée.
+
+\begin{figure}[h!t] \centering
+    \begin{tabular}{c}
+        \begin{lstlisting}[language=Phaistos-Template, linewidth=11.5cm]
+    ...
+    .elevator_attrs = deadline_attrs,
+    .elevator_name = \"[$!Globals.module_name$]\",
+    .elevator_alias = \"[$!Globals.module_name$]\",
+    .elevator_owner = THIS_MODULE,
+};
+MODULE_ALIAS(\"[$!Globals.module_name$]\");
+...
+        \end{lstlisting}
+    \end{tabular}
+    \caption{Extrait du modèle \texttt{script} s'occupant de la génération du 
+    squelette}
+    \label{fig:module_name_c}
+\end{figure}
+
+Ici, le code C qu'il y a dans le modèle de la Figure~\ref{fig:module_name_c} va 
+servir à définir le contenu d'une structure qui va être donnée à une fonction 
+du système qui va lire cette structure et enregistrer un nouvel ordonnanceur 
+d'E/S. Cette fonctionnalité n'est pas présente pour tout les types 
+d'ordonnanceurs et peut rendre la tâche beaucoup plus complexe quand elle est 
+manquante. Par exemple, pour le projet Ipanema~\cite{lepers2020provable}, le 
+noyau Linux est modifié pour pouvoir changer dynamiquement la politique 
+d'ordonnancement des processus. Ce travail d'intégration demande beaucoup plus 
+de temps et d'effort, mais heureusement, les développeurs Linux l'ont déjà fait 
+dans notre cas (merci).
+
+Troisièmement, il fallait ajouter la génération d'un fichier \texttt{.mk} qui 
+allait permettre de lister les dépendances nécessaires au bon fonctionnement du 
+module. Pour cela j'ai donc ajouté une règle \texttt{let! mk\_file} au modèle 
+\texttt{script}, produisant directement une sortie sans parcourir l'AST.
+
+Pour finir, il a fallu écrire le Makefile pour gérer les différentes phases de 
+génération du code C propre au module (fichier principale, secondaires et 
+fichier \texttt{.mk}), ainsi que son exportation vers le dossier \texttt
+{Output-Modules}, dans un sous-dossier spécifique, accompagné d'un Makefile 
+pour compiler le module et intégrer le nouvel ordonnanceur d'E/S au système.
 
 \begin{center}
-    ---
+---
 \end{center}
     
-<mini-résumé>
+J'ai donc trouvé un moyen relativement simple de générer un code C directement 
+compilable et intégrable dans le noyau Linux en tant que module. Pour cela un 
+Makefile dédié à cet effet et une modification de la génération par les modèles 
+sont à l'origine de ce changement. De plus, la modification d'un noyau Linux 
+n'est plus nécessaire puisque la notion de module existe de base dans le 
+système.
 
 \subsection{Mise en place d'une machine virtuelle pour les tests}
 
-<parler du pourquoi le besoin d'une VM>
+Pour effectuer des tests de de fonctionnement ou de compatibilité, j'avais besoin de travailler sur un environement de travail robuste (de bonnes performances pour les compilations noyau ou autre) et sûr (pas de pertes en cas de crash). Pour cela j'ai décidé de reprendre ce qu'avait laissé Nick derrière lui, c'est à dire une image système enregistrée par le logiciel Qemu, une machine de virtualisation.
 
-<parler de l'état actuelle de l'image laissée par Nick>
+L'image laissée en l'état par Nick comportait le noyau Linux modifié ainsi que l'ordonnanceur Deadline généré par le DSL, il y avait aussi certains scripts présents pour changer d'ordonnanceur ou pour effectuer des tests de performances rapides. Le problème avec cette image c'est qu'elle ne m'a servit qu'au début du stage pour comprendre comment les choses fonctionnaient, mais j'avais besoin de créer ma propre image pour tester la nouvelle implémentation exposée en Partie~\ref{module}.
 
-<parler des changements apportés>
+Pour cela j'ai modifié le dossier ``Matryoshka'' (voir Figure~\ref{fig:arch}) sur ma branche de développement Git. J'ai principalement apporté des modifications aux scripts de mise en place de l'image Qemu, mais j'ai aussi supprimé le contenu du dossier \texttt{linux} qui contenait le SE modifié (le dossier me servira encore pour le téléchargement du noyau utilisé dans les scripts).
 
-<parler des scripts de mise en place de l'environement>
+Le script principal de mise en place de Qemu et d'installation du système, a été le plus compliqué à écrire. En effet ce script va permettre d'effectuer une installation propre de tout un système debian version 10 avec un noyau Linux version 5.13 non modifié. Ce système sera compilé et sauvegardé dans une image Qemu par ce script, pour qu'il puisse être démarré ou monté à volonté. La difficulté d'écriture d'un tel script résidait dans la maîtrise des outils qui lui sont nécessaires. Le script est disponible en annexe (voir Figure~\ref{fig:script}) mais voici un récapitulatif de ses différentes étapes :
+
+\begin{enumerate}
+    \item Installation de dépendances, définition de variables et nettoyage des précédentes installations.
+    \item Téléchargement et compilation d'un noyau Linux avec la bonne configuration pour accueillir des modules.
+    \item Mise en place d'une image Qemu :
+    \begin{enumerate}
+        \item Création du fichier contenant l'image.
+        \item Création d'une partition au format ext4 dans l'image.
+        \item Téléchargement d'un système de base d'une debian buster (version 10) sur cette partition.
+    \end{enumerate}
+    \item Montage de l'image et configuration interne du système (modifications de fichiers et d'installations importantes pour que la VM fonctionne correctement). Cela comprend la liaison virtuelle nécessaire pour que Qemu puisse voir le code source Linux nécessaire pour la compilation des modules.
+    \item Copies des modules actuellement générés dans un dossier où ils attendront d'être compilés par l'utilisateur.
+\end{enumerate}
 
 \begin{center}
-    ---
+---
 \end{center}
     
 <mini-résumé>
@@ -177,7 +276,7 @@ Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très
 <reprendre plos21.pdf>
 
 \begin{center}
-    ---
+---
 \end{center}
     
 <mini-résumé>

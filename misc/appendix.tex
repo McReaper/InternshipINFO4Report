@@ -119,4 +119,92 @@ EVENTS {
     \caption{Les différentes politiques d'ordonnancement de Linux}
     \label{tab:politics}
 \end{table}
-  
+
+\newpage
+\section*{Script d'installation d'une VM}
+\begin{figure}[h!t]
+    \centering
+    \begin{tabular}{c}
+        \begin{lstlisting}[style=customShell]
+#!/usr/bin/env bash
+sudo apt-get install -y flex bison libelf-dev openssl libssl-dev parted qemu-kvm qemu make
+
+CORES=`expr \`lscpu -e=CPU | wc -l\` - 1`
+IMG=qemu-image.img
+DIR=mount-point.dir
+VER=5.11.22
+
+# From scratch
+rm -rf $IMG $DIR linux/
+
+#------------------------------------------------------------------#
+#           DOWNLOAD and BUILD a linux kernel 5.13-rc7             #
+#------------------------------------------------------------------#
+wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-$VER.tar.xz
+tar -xf linux-$VER.tar.xz
+rm linux-$VER.tar.xz
+mv linux-$VER linux 
+cd linux
+make x86_64_defconfig
+make modules_prepare
+make kvm_guest.config # previously "make kvmconfig"
+make -j $CORES
+cd ../
+#------------------------------------------------------------------#
+
+#------------------------------------------------------------------#
+#     Setup image by CREATING it, MOUNTING it, CONFIGURING it.     #
+#------------------------------------------------------------------#
+qemu-img create $IMG 3g
+losetup -fP $IMG # Setup loop device
+MNT=`losetup -a | grep $IMG | tail -n 1 | cut -d ":" -f 1`
+# Create a partition :
+parted $MNT -s mklabel msdos mkpart primary ext4 1MiB 100% 
+sleep 0.5 # need to wait here because /dev/loop0p1 or whatever similar can not be seen immediatly ...
+mkfs.ext4 $MNT\p1 # p1 by default
+mkdir $DIR
+sudo mount -t ext4 $MNT\p1 $DIR # Mount loop device in directory
+sudo debootstrap --arch amd64 buster $DIR # Download a debian base system (no kernel)
+# We bind linux source code to our image because we need it to install modules on the debian system :
+sudo mount --bind linux/ $DIR/mnt/ 
+
+# Modifying the content of the mounted image.
+cp /etc/resolv.conf $DIR/etc/resolv.conf # to fix potential dns problems while chroot
+chroot $DIR /bin/bash -x << EOF
+echo "PhaistOS" > /etc/hostname
+echo "root:root" | chpasswd
+cd ~
+mkdir phaistos/
+echo "dhclient -4" >> .bashrc
+. .bashrc
+apt update
+apt install -y build-essential
+echo '# Root is partition1
+/dev/sda1 / ext4 rw,relatime,data=ordered 0 1
+# The kernel source is on the drive of the host, we use the virtfs 9p to see it with gemu.
+kernel /mnt 9p trans=virtio,version=9p2000.L 0 1' >> /etc/fstab
+cd /mnt/
+make modules_install
+EOF
+
+# Copy PhaistOS modules onto the mounted image with the Makefile.
+rsync -r ../PhaistOS-DSL/Output-Modules/* $DIR/root/phaistos/ --exclude=README.md
+#------------------------------------------------------------------#
+
+#------------------------------------------------------------------#
+#                             FINISH                               #
+#------------------------------------------------------------------#
+# Completly unmount the image and ask user to launch qemu and run the install script
+sudo umount $DIR/mnt
+sudo umount $DIR
+sudo losetup -d $MNT
+
+echo -e "\033[32mSetted root password with : \033[5;1mroot\033[0m"
+echo -e "\033[32mPlease launch QEMU with : \033[1m./bootQemuLinuxWithCustomKernel\033[0m"
+echo -e "\033[32mLogin and then run : \033[1m~/build_modules.sh\033[0m"
+#------------------------------------------------------------------#
+        \end{lstlisting}
+    \end{tabular}
+    \caption{Script compressé illustrant la compléxité de l'installation d'une VM.}
+    \label{fig:script}
+\end{figure}

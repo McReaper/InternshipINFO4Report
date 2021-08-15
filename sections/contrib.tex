@@ -154,23 +154,22 @@ fichiers secondaires séparemment et l'utilisateur devait alors les remplaçait
 et compiler le noyau Linux pour que sa politique puisse prendre effet.
 
 \begin{figure}[h!t] \centering
-    \textbf{TODO}
-    %\includegraphics[width=\textwidth]{images/compiler}
+    \includegraphics[width=0.8\textwidth]{images/linux_arch}
     \caption{Schéma de l'arborescence du dossier \texttt{block} dans le code 
     source Linux, augmenté par PhaistOS}
     \label{fig:modules_folder}
 \end{figure}
 
-L'objectif était ici de changer cette méthode d'implémentation, et de faire en 
-sorte que le code généré puisse être indépendant (on peut créer autant de 
+Mon objectif était ici de changer cette méthode d'implémentation, et de faire 
+en sorte que le code généré puisse être indépendant (on peut créer autant de 
 politique qu'on le souhaite, sans que celles-ci se marchent dessus) et qu'il 
 soit intégrable à chaud dans le noyau.
 
 Pour cela j'ai commencé par me renseigner sur les autres ordonnanceurs, et j'ai 
-appris que l'ordonnanceur Kyber, développé par Facebook était un module que 
+appris que l'ordonnanceur Kyber, développé par Facebook, était un module que 
 l'on pouvait imbriquer et désimbriquer à volonté. 
 
-Premièrement j'ai donc appris comment créer mon propre module : il me fallait 
+Premièrement, j'ai appris comment créer mon propre module : il me fallait 
 une recette, autrement dit un Makefile, ainsi qu'un fichier \texttt{.mk} 
 contenant une liste de dépendances si nécessaire. Le code généré devait avoir 
 certaines particularités pour s'enregistrer auprès du système en tant que 
@@ -178,10 +177,10 @@ module, et bien heureusement PhaistOS comportait déjà ces pré-requis dans son
 fichier principal qui servait de squelette.
 
 Deuxièmement, j'ai du modifier la génération pour qu'elle soit plus dynamique, 
-cela inclu le squelette qui devait pouvoir s'enregistrer auprès du système sous 
-différents noms, pour ne pas provoquer d'erreur à l'insertion du module. Comme 
-on peut le voir dans la Figure~\ref{fig:module_name_c}, le modèle \texttt
-{script} qui sert de point d'entrée dans l'AST (comme on l'a vu dans la 
+cela inclu le fichier principal qui devait pouvoir s'enregistrer auprès du 
+système sous différents noms, pour ne pas provoquer d'erreur à l'insertion du 
+module. Comme on peut le voir dans la Figure~\ref{fig:module_name_c}, le modèle 
+\texttt{script} qui sert de point d'entrée dans l'AST (comme on l'a vu dans la 
 Partie~\ref{ast_files}) a été modifié pour que celui-ci génère le squelette 
 ainsi que les fichiers secondaires. Dans cet extrait on retrouve les 
 délimiteurs \texttt{[\$} et \texttt{\$]} qui je rappelle vont produire une 
@@ -242,36 +241,80 @@ système.
 
 \subsection{Mise en place d'une machine virtuelle pour les tests}
 
-Pour effectuer des tests de de fonctionnement ou de compatibilité, j'avais besoin de travailler sur un environement de travail robuste (de bonnes performances pour les compilations noyau ou autre) et sûr (pas de pertes en cas de crash). Pour cela j'ai décidé de reprendre ce qu'avait laissé Nick derrière lui, c'est à dire une image système enregistrée par le logiciel Qemu, une machine de virtualisation.
+Pour effectuer des tests de fonctionnement ou de compatibilité, j'avais besoin 
+de travailler sur un environement de travail robuste (de bonnes performances 
+pour les compilations noyau ou autre) et sûr (pas de pertes en cas de crash). 
+Pour la robustesse j'ai donc utilisé les serveurs Grid'5000 et pour la sûreté 
+j'ai décidé de reprendre ce qu'avait laissé Nick derrière lui, c'est à dire une 
+image système enregistrée par le logiciel de virtualisation Qemu.
 
-L'image laissée en l'état par Nick comportait le noyau Linux modifié ainsi que l'ordonnanceur Deadline généré par le DSL, il y avait aussi certains scripts présents pour changer d'ordonnanceur ou pour effectuer des tests de performances rapides. Le problème avec cette image c'est qu'elle ne m'a servit qu'au début du stage pour comprendre comment les choses fonctionnaient, mais j'avais besoin de créer ma propre image pour tester la nouvelle implémentation exposée en Partie~\ref{module}.
+L'image laissée en l'état par Nick comportait le noyau Linux modifié ainsi que 
+l'ordonnanceur Deadline généré par le DSL, il y avait aussi certains scripts 
+présents pour changer d'ordonnanceur ou pour effectuer des tests de 
+performances rapides. Le problème avec cette image c'est qu'elle ne m'a servit 
+qu'au début du stage pour comprendre comment PhaistOS fonctionnait, mais 
+j'avais besoin de créer ma propre image, avec mon propre environement pour 
+tester la nouvelle implémentation exposée en Partie~\ref{module}.
 
-Pour cela j'ai modifié le dossier ``Matryoshka'' (voir Figure~\ref{fig:arch}) sur ma branche de développement Git. J'ai principalement apporté des modifications aux scripts de mise en place de l'image Qemu, mais j'ai aussi supprimé le contenu du dossier \texttt{linux} qui contenait le SE modifié (le dossier me servira encore pour le téléchargement du noyau utilisé dans les scripts).
+Pour cela j'ai modifié le contenu du dossier ``Matryoshka'' (voir Figure~\ref
+{fig:arch}) sur ma branche de développement Git. J'ai principalement apporté 
+des modifications aux scripts de mise en place de l'image Qemu, mais j'ai aussi 
+supprimé le contenu du dossier \texttt{linux} qui contenait le SE modifié (le 
+dossier me servira encore pour le téléchargement du noyau qui sera compilé par 
+les scripts).
 
-Le script principal de mise en place de Qemu et d'installation du système, a été le plus compliqué à écrire. En effet ce script va permettre d'effectuer une installation propre de tout un système debian version 10 avec un noyau Linux version 5.13 non modifié. Ce système sera compilé et sauvegardé dans une image Qemu par ce script, pour qu'il puisse être démarré ou monté à volonté. La difficulté d'écriture d'un tel script résidait dans la maîtrise des outils qui lui sont nécessaires. Le script est disponible en annexe (voir Figure~\ref{fig:script}) mais voici un récapitulatif de ses différentes étapes :
+Le script principal de mise en place de Qemu et d'installation du système a 
+été le plus compliqué à écrire. En effet ce script va permettre d'effectuer une 
+installation propre de tout un système debian de base avec un noyau Linux 
+version 5.13 non modifié. Ce système sera compilé et sauvegardé dans une image 
+Qemu par ce script, pour qu'il puisse être démarré ou monté à volonté. La 
+difficulté d'écriture d'un tel script résidait dans la maîtrise des outils qui 
+lui sont nécessaires. Le script est disponible en annexe (voir Figure~\ref
+{fig:script}) mais voici un récapitulatif de ses différentes étapes :
 
 \begin{enumerate}
-    \item Installation de dépendances, définition de variables et nettoyage des précédentes installations.
-    \item Téléchargement et compilation d'un noyau Linux avec la bonne configuration pour accueillir des modules.
+    \item Installation de dépendances, définition des variables et nettoyage 
+    des précédentes installations.
+    \item Téléchargement et compilation d'un noyau Linux avec la bonne 
+    configuration pour accueillir des modules.
     \item Mise en place d'une image Qemu :
     \begin{enumerate}
         \item Création du fichier contenant l'image.
         \item Création d'une partition au format ext4 dans l'image.
-        \item Téléchargement d'un système de base d'une debian buster (version 10) sur cette partition.
+        \item Téléchargement d'un système de base d'une debian buster (version 
+        10) sur cette partition.
     \end{enumerate}
-    \item Montage de l'image et configuration interne du système (modifications de fichiers et d'installations importantes pour que la VM fonctionne correctement). Cela comprend la liaison virtuelle nécessaire pour que Qemu puisse voir le code source Linux nécessaire pour la compilation des modules.
-    \item Copies des modules actuellement générés dans un dossier où ils attendront d'être compilés par l'utilisateur.
+    \item Montage de l'image et configuration interne du système (modifications 
+    de fichiers et d'installations importantes pour que la VM fonctionne 
+    correctement). Cela comprend la liaison virtuelle nécessaire pour que Qemu 
+    puisse voir le code source Linux (contenu dans le dossier \texttt{linux}) 
+    nécessaire pour la compilation des modules.
+    \item Copies des modules actuellement générés dans l'image où ils 
+    attendront d'être compilés par l'utilisateur.
 \end{enumerate}
+
+Des scripts secondaires existent et ont pour but de lancer la machine virtuelle 
+avec l'image préalablement créée. Certains permettent aussi de monter l'image 
+dans un dossier pour qu'elle puisse être visible comme le contenu d'un disque 
+dur.
 
 \begin{center}
 ---
 \end{center}
     
-<mini-résumé>
+La machine virtuelle reste une valeur de sûreté car elle permet au développeur 
+d'effectuer ses expérimentations sans mettre en danger son système, ce bac à 
+sable est l'endroit idéal pour développer des politiques d'ordonnancement 
+personnalisées. Grâce à cette mise en oeuvre le prochain développeur qui 
+travaillera sur PhaistOS pourra mettre en place une machine virtuelle 
+facilement avec la configuration requise pour expérimenter ses politiques et 
+faire des tests avec le DSL. Une fois son DSL stable il pourra ensuite passer à 
+des choses plus sérieuses en le testant sur des machines physiques.
 
 \subsection{Tests d'analyse de performances}
 
-Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très peu d'impacte sur les performances finales des politiques PhaistOS.
+Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très 
+peu d'impacte sur les performances finales des politiques PhaistOS.
 
 <reprendre plos21.pdf>
 

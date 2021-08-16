@@ -105,6 +105,7 @@ un exemple avec la politique deadline personnalisée, Figure~\ref
     \label{tab:phaistos-events}
 \end{table}
 
+\newpage
 
 \begin{figure}[h!t]
     \centering
@@ -163,7 +164,7 @@ fonctionnement du compilateur, où l'on retrouve es trois parties : le parseur
 en rouge, les analyseurs en violet, et le générateur en vert.
 
 \begin{figure}[h!t] \centering
-    \includegraphics[width=\textwidth]{images/compiler}
+    \includegraphics[width=0.9\textwidth]{images/compiler}
     \caption{Schéma de fonctionnement du compilateur.}
     \label{fig:compiler}
 \end{figure}
@@ -171,15 +172,16 @@ en rouge, les analyseurs en violet, et le générateur en vert.
 \subsubsubsection{Les fichiers AST}
 \label{ast_files}
 
-On remarque sur ce schéma que certaines entités importantes, comme le parseur, 
-sont issues d'une génération partielle, cela signifie que certains des fichiers 
-du code source utilisés par le parseur sont générés. Le générateur en question 
-s'appelle ``le parseur d'arbre à syntaxe abstraite interrogeable'' (``Queryable 
-AST Parser'' en anglais). Son but est de transformer une description d'AST (un 
-arbre abstrait) contenue dans un fichier, en code source Ocaml pouvant 
-modéliser chaque noeud de l'arbre (grace à un système d'objet propre au 
-langage) et les parcourir à l'aide d'un visiteur dédié à cet arbre. Le fichier 
-contenant ce code source généré s'appelle de manière générale \texttt{ast.ml}.
+On remarque sur ce schéma (Figure~\ref{fig:compiler}), que certaines entités 
+importantes, comme le parseur, sont issues d'une génération partielle, cela 
+signifie que certains des fichiers du code source utilisés par le parseur sont 
+générés. Le générateur en question s'appelle ``le parseur d'arbre à syntaxe 
+abstraite interrogeable'' (``Queryable AST Parser'' en anglais). Son but est de 
+transformer une description d'AST (un arbre abstrait) contenue dans un fichier, 
+en code source Ocaml pouvant modéliser chaque noeud de l'arbre (grace à un 
+système d'objet propre au langage) et les parcourir à l'aide d'un visiteur 
+dédié à cet arbre. Le fichier contenant ce code source généré s'appelle de 
+manière générale \texttt{ast.ml}.
 
 Par exemple, dans le cas du parseur, on fournira au générateur la description 
 d'un AST qui définit la structure que doit avoir les politiques écrites par les 

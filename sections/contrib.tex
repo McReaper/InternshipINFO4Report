@@ -19,8 +19,8 @@ Pernier sur le site archéologique du palais minoen de Phaistos, en Crète.}
     $\prec \cdot$ --- $\cdot \succ$ 
 \end{center}
 
-Durant le long du stage sur ce projet, j'ai pu entretenir un journal 
-récapitulant mon expérience quotidienne, ce journal est disponible au lien 
+Durant ce stage sur le projet PhaistOS, j'ai pu entretenir un journal 
+récapitulant de mon expérience quotidienne, ce journal est disponible au lien 
 suivant :
 
 \begin{center}
@@ -314,12 +314,120 @@ des choses plus sérieuses en le testant sur des machines physiques.
 \subsection{Tests d'analyse de performances}
 
 Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très 
-peu d'impacte sur les performances finales des politiques PhaistOS.
+peu d'impacte sur les performances finales des politiques PhaistOS. Pour 
+montrer cela avec Nicolas, nous avons comparé la politique ``Deadline'' de 
+PhaistOS et de Linux. Nous avons vérifiée et compilée la politique du DSL, puis 
+nous avons déployé ensemble un système debian version 10 avec un noyau Linux 5.
+13 sur une machine des serveurs grenoblois de Grid'5000. Le code C de la 
+politique a été importé dans un des dossiers du répertoire personnel et nous 
+l'avons compilé en tant que module noyau. Une fois chargé, le module de 
+l'ordonnanceur doit être activé à travers le contenu du fichier \texttt{queue/
+scheduler} de chaque disque.
 
-<reprendre plos21.pdf>
+Pour effetucer les tests, nous avons utilisé l'outil \texttt{fio}, dont 
+l'auteur est aussi celui de la politique MQ-Deadline de Linux. Nous avons 
+configuré l'outil pour qu'il puisse effectuer des accès en séquences de 
+lecture, d'écriture, puis des deux, et ensuite nous avons répéter l'expérience 
+mais avec des accès aléatoires. Les six expériences ont été effectuées sur 10 
+secondes, sur un fichier de 128Mio avec des blocs de données de 4Kio et une 
+taille de file de 4 requêtes maximale (on peut avoir un maximum de 4 requêtes 
+d'E/S à la fois sur le fichier). La machine utilisé possèdait un disque SSD 
+SATA de 480Go de capacité de la marque Samsung.
+
+\pgfplotstableread{misc/data.table}{\loadedtable}
+\begin{figure}[h!t] \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                width=7cm,
+                %height=7cm,
+                ymin=0,ymax=12,
+                xbar interval,
+                xbar legend,
+                ytick=data,
+                yticklabel interval boundaries,
+                yticklabels from table={\loadedtable}{Test},
+                yticklabel style={
+                    % rotate=90
+                    anchor=east
+                },
+                xlabel={Débit (MiB/s) - Plus rapide est le débit, mieux c'est.},
+                bar width={4pt},
+                enlarge x limits={upper},
+                legend style={
+                    at={(0.95,0.95)},
+                    anchor=north east 
+                    % legend columns=-1
+                },
+                draw=black
+            ]
+        
+            \addplot [fill=black]
+            table [y=Rk,x=R-BW, x expr={\thisrow{R-BW}/1000}]  {\loadedtable};
+            \addplot [fill=none]
+            table [y=Rk,x=W-BW, x expr={\thisrow{W-BW}/1000}]  {\loadedtable};
+
+            \legend{Lecture,Écriture}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comparaison des performances de débit entre les ordonnanceurs 
+    ``deadline'' PhaistOS et Linux}
+    \label{fig:comp-bw}
+    \vspace{1mm}
+    \footnotesize{Les tests sont nommés sous la forme \textit
+    {mode-direction-ordonnanceur} où \textit{mode} est soit séquentiel (sq) ou 
+    aléatoire (rd); la \textit{direction}, c'est la lecture (r), l'écriture (w) 
+    ou les deux; et \textit{ordonnanceur} indique lequel de PhaistOS ou Linux 
+    est utilisé.}
+
+\end{figure}
+        
+\begin{figure}[h!t] \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                width=7cm,
+                %height=7cm,
+                ymin=0,ymax=12,
+                xbar interval,
+                xbar legend,
+                ytick=data,
+                yticklabel interval boundaries,
+                yticklabels from table={\loadedtable}{Test},
+                yticklabel style={
+                    % rotate=90
+                    anchor=east
+                },
+                xlabel={Latence ($\mu$s) - Plus basse est la latence, mieux c'est.},
+                bar width={4pt},
+                enlarge x limits={upper},
+                legend style={
+                    at={(.9,.9)},
+                    anchor=north east 
+                    %legend columns=-1
+                }
+            ]
+        
+            \addplot [fill=black]
+            table [y=Rk,x=R-Lat] {\loadedtable};
+            \addplot [fill=none]
+            table [y=Rk,x=W-Lat] {\loadedtable};
+        
+            \legend{Lecture, Écriture}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comparaison des performances de latence}
+    \label{fig:comp-lat}
+\end{figure}
+
+Comme illustré dans les Figures~\ref{fig:comp-bw}~et~\ref{fig:comp-lat}, les 
+deux algorithmes ont essentiellement les mêmes performances en terme de latence 
+et de débit. Une description sous la Figure~\ref{fig:comp-bw} explique comment 
+les tests sont organisés, et ils devraient être lus paire par paire.
 
 \begin{center}
 ---
 \end{center}
     
-<mini-résumé>
+Nous avons donc montré rapidement que l'utilisation du DSL n'a pas d'impacte 
+significative sur les performances finales du binaire provenant de la 
+génération du code. Cet aspect est important car il permet d'ajouter un 
+avantage de plus à l'utilisation du DSL. 

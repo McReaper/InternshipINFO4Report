@@ -2,7 +2,6 @@
 \label{appendix}
 \appendix
 
-\newpage
 \section*{Définitions des événements d'une politique}
 \begin{figure}[h!t]
     \centering
@@ -58,12 +57,11 @@ EVENTS {
 \end{figure}
 
 \newpage
-\section*{Les politiques d'ordonnancement de Linux}
 \begin{table}[h!t]
     \begin{tabularx}{\textwidth} { 
-        | >{\hsize=0.22\hsize\linewidth=\hsize\raggedright\arraybackslash}X 
+        | >{\hsize=0.20\hsize\linewidth=\hsize\raggedright\arraybackslash}X 
         | >{\hsize=0.26\hsize\linewidth=\hsize\raggedright\arraybackslash}X 
-        | >{\hsize=1.51\hsize\linewidth=\hsize\arraybackslash}X | }
+        | >{\hsize=1.53\hsize\linewidth=\hsize\arraybackslash}X | }
         \hline
         \textbf{Nom} & \textbf{Catégorie de file d'attente} & \textbf
         {Description} \\
@@ -207,4 +205,19 @@ echo -e "\033[32mLogin and then run : \033[1m~/build_modules.sh\033[0m"
     \end{tabular}
     \caption{Script compressé illustrant la compléxité de l'installation d'une VM.}
     \label{fig:script}
+\end{figure}
+
+\newpage
+\section*{Diagrammes de Gantt}
+
+\begin{figure}[h!t] \centering
+    \includegraphics[width=\textwidth]{images/gantt_expected}
+    \caption{Diagramme de Gantt estimé, profilant un planning fluide}
+    \label{fig:gantt_1}
+\end{figure}
+
+\begin{figure}[h!t] \centering
+    \includegraphics[width=\textwidth]{images/gantt_real}
+    \caption{Diagramme de Gantt réel, exposant des tâches qui se superposent}
+    \label{fig:gantt_2}
 \end{figure}

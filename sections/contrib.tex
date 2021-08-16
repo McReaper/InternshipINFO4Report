@@ -34,8 +34,8 @@ importante, consistait à comprendre et documenter les différentes sections du
 compilateur PhaistOS. À mon arrivée sur le projet, chaque sous-dossier du DSL 
 (voir Figure~\ref{fig:arch}, en annexe) comportait un fichier \texttt{README.
 md} vide. Je n'avais donc aucune description précise du rôle de chaque 
-sous-dossier, et la légère documentation laisée derrière lui par Nick n'était 
-pas assez clair ou des fois trop complexe, pour que je puisse comprendre de 
+sous-dossier, et la légère documentation laisées derrière lui par Nick n'était 
+pas assez claire ou des fois trop complexe, pour que je puisse comprendre de 
 quoi il en retournait. J'ai donc commencé à lire le code de chaque répertoire, 
 et progressivement j'ai commencé à comprendre quel était le rôle de chacun. 
 J'ai donc remplit le \texttt{README.md} de chaque partie du compilateur en 
@@ -45,7 +45,7 @@ rôle de chaque fichier du répertoire dans certains cas.
 Dans chaque dossier il existait des scripts permettant de faire les appels aux 
 exécutables, comme le visiteur de modèle par exemple, ou tout simplement 
 l'exécutable local. Ces scripts ont été remplacés pour laisser place à des 
-\texttt{Makefile}. Ces Makefile peuvent s'appeller entre eux, comme les scripts 
+\texttt{Makefile}. Ces Makefile peuvent s'appeler entre eux, comme les scripts 
 le faisaient avant, et possèdent une description propre à chacun dans le \texttt
 {README.md} du dossier associé.
 
@@ -57,7 +57,7 @@ Durant mon stage, je me suis rendu compte que la compilation du code Ocaml
 d'avertissements, assez pour que le buffer de mon terminal ne puisse pas suivre 
 la route au bout de deux compilations. J'ai donc pris la décision de 
 restructurer le code d'un des dossiers du DSL pour montrer qu'il est possible 
-de supprimer tout ces avertissements à la compilation du code source.
+de supprimer tous ces avertissements à la compilation du code source.
 
 \subsubsection{Le problème}
 
@@ -88,7 +88,7 @@ A ce moment là tout le monde se dit qu'inclure cette API au début du code
 réglerait pas mal de problèmes, sauf que la solution est bien plus complexe 
 qu'elle en a l'air, et je comprends pourquoi Nick a procédé de cette manière.
 
-En faite le code possède une dépendance cyclique entre les objets qui 
+En fait, le code possède une dépendance cyclique entre les objets qui 
 représente les noeuds de l'arbre, et le visiteur. Car les noeuds doivent 
 connaitre la classe \texttt{visitor} et le visiteur doit connaitre chaque 
 classe de noeud, toutes les classes sont donc déclarées de manière récursive 
@@ -96,12 +96,14 @@ dans le code. De plus, l'API doit connaitre à la fois les noeuds et le
 visiteur, pour certaines fonctions. Cependant le langage Ocaml ne permet pas de 
 déclarer récursivement des classes avec des fonctions, la connaissance 
 récursive de deux entités à la sémantique différente n'est pas possible en 
-Ocaml. C'est pour cette raison je présume que Nick à décider de mettre le code de l'API directement dans les méthodes du visiteur.
+Ocaml. C'est pour cette raison je présume que Nick a décidé de mettre le code 
+de l'API directement dans les méthodes du visiteur.
 
 \subsubsection{La solution}
+\label{solution}
 
-Cependant il existe une solution capable de régler tout les problèmes qui 
-n'était pas aisée de trouver. Après avoir tenter de déclarer l'interface de 
+Cependant il existe une solution capable de régler tous les problèmes qui 
+n'était pas aisée de trouver. Après avoir tenté de déclarer l'interface de 
 l'API en début de fichier puis de la définir en fin de fichier sans succès 
 (après la déclaration des noeuds et du visiteur). Je me suis penché sur 
 l'utilisation des modules, et j'ai appris qu'il était possible de les déclarer 
@@ -119,14 +121,14 @@ utilisée pour parser les politiques PhaistOS. Ces conflits étaient juste dû �
 des ambiguïtés liés à deux règles de la grammaire que Mehnir n'arrivait pas à 
 départager (quelle règle choisir en fonction de ce qui est lu par le parseur). 
 
-\subsubsection{L'impacte}
+\subsubsection{L'impact}
 
 Grâce à ces changement, le mainteneur du compilateur gagne en visibilité lors 
 de sa phase de rédaction du code : dès la compilation, il pourra s'apercevoir 
 si son programme Ocaml a un problème ou non. Cependant, ces changements dans la 
-structure du code ont une impacte qui n'est pas des moindres puisqu'ils 
+structure du code ont une impact qui n'est pas des moindres puisqu'ils 
 demandent de changer la génération de code pour reproduire la structure que 
-j'ai mis en place dans tout les autres parties du DSL, cependant ces 
+j'ai mis en place dans toutes les autres parties du DSL, cependant ces 
 changements que j'ai effectué dans le répertoire \texttt{Static-Analysis} ne 
 conviendront peut être pas pour d'autre fichiers \texttt{ast.ml}.
 
@@ -150,7 +152,7 @@ quatres fichiers étaient répartis dans un dossier ajouté dans le noyau Linux
 juste en dessous du dossier contenant les autres ordonnanceurs du système, 
 comme par exemple BFQ, MQ-Deadline ou PhaistOS (voir Figure~\ref
 {fig:modules_folder}). A chaque génération, PhaistOS produisait le code des 
-fichiers secondaires séparemment et l'utilisateur devait alors les remplaçait 
+fichiers secondaires séparemment et l'utilisateur devait alors les remplacer 
 et compiler le noyau Linux pour que sa politique puisse prendre effet.
 
 \begin{figure}[h!t] \centering
@@ -177,7 +179,7 @@ module, et bien heureusement PhaistOS comportait déjà ces pré-requis dans son
 fichier principal qui servait de squelette.
 
 Deuxièmement, j'ai du modifier la génération pour qu'elle soit plus dynamique, 
-cela inclu le fichier principal qui devait pouvoir s'enregistrer auprès du 
+cela inclut le fichier principal qui devait pouvoir s'enregistrer auprès du 
 système sous différents noms, pour ne pas provoquer d'erreur à l'insertion du 
 module. Comme on peut le voir dans la Figure~\ref{fig:module_name_c}, le modèle 
 \texttt{script} qui sert de point d'entrée dans l'AST (comme on l'a vu dans la 
@@ -209,7 +211,7 @@ MODULE_ALIAS(\"[$!Globals.module_name$]\");
 Ici, le code C qu'il y a dans le modèle de la Figure~\ref{fig:module_name_c} va 
 servir à définir le contenu d'une structure qui va être donnée à une fonction 
 du système qui va lire cette structure et enregistrer un nouvel ordonnanceur 
-d'E/S. Cette fonctionnalité n'est pas présente pour tout les types 
+d'E/S. Cette fonctionnalité n'est pas présente pour tous les types 
 d'ordonnanceurs et peut rendre la tâche beaucoup plus complexe quand elle est 
 manquante. Par exemple, pour le projet Ipanema~\cite{lepers2020provable}, le 
 noyau Linux est modifié pour pouvoir changer dynamiquement la politique 
@@ -240,6 +242,7 @@ n'est plus nécessaire puisque la notion de module existe de base dans le
 système.
 
 \subsection{Mise en place d'une machine virtuelle pour les tests}
+\label{qemu}
 
 Pour effectuer des tests de fonctionnement ou de compatibilité, j'avais besoin 
 de travailler sur un environement de travail robuste (de bonnes performances 
@@ -314,9 +317,9 @@ des choses plus sérieuses en le testant sur des machines physiques.
 \subsection{Tests d'analyse de performances}
 
 Le but dans cette partie est de montrer que l'utilisation d'un DSL n'a que très 
-peu d'impacte sur les performances finales des politiques PhaistOS. Pour 
+peu d'impact sur les performances finales des politiques PhaistOS. Pour 
 montrer cela avec Nicolas, nous avons comparé la politique ``Deadline'' de 
-PhaistOS et de Linux. Nous avons vérifiée et compilée la politique du DSL, puis 
+PhaistOS et de Linux. Nous avons vérifié et compilé la politique du DSL, puis 
 nous avons déployé ensemble un système debian version 10 avec un noyau Linux 5.
 13 sur une machine des serveurs grenoblois de Grid'5000. Le code C de la 
 politique a été importé dans un des dossiers du répertoire personnel et nous 
@@ -327,11 +330,11 @@ scheduler} de chaque disque.
 Pour effetucer les tests, nous avons utilisé l'outil \texttt{fio}, dont 
 l'auteur est aussi celui de la politique MQ-Deadline de Linux. Nous avons 
 configuré l'outil pour qu'il puisse effectuer des accès en séquences de 
-lecture, d'écriture, puis des deux, et ensuite nous avons répéter l'expérience 
+lecture, d'écriture, puis des deux, et ensuite nous avons répété l'expérience 
 mais avec des accès aléatoires. Les six expériences ont été effectuées sur 10 
 secondes, sur un fichier de 128Mio avec des blocs de données de 4Kio et une 
-taille de file de 4 requêtes maximale (on peut avoir un maximum de 4 requêtes 
-d'E/S à la fois sur le fichier). La machine utilisé possèdait un disque SSD 
+taille de file de 4 requêtes maximales (on peut avoir un maximum de 4 requêtes 
+d'E/S à la fois sur le fichier). La machine utilisée possèdait un disque SSD 
 SATA de 480Go de capacité de la marque Samsung.
 
 \pgfplotstableread{misc/data.table}{\loadedtable}
@@ -427,7 +430,7 @@ les tests sont organisés, et ils devraient être lus paire par paire.
 ---
 \end{center}
     
-Nous avons donc montré rapidement que l'utilisation du DSL n'a pas d'impacte 
-significative sur les performances finales du binaire provenant de la 
+Nous avons donc montré rapidement que l'utilisation du DSL n'a pas d'impact 
+significatif sur les performances finales du binaire provenant de la 
 génération du code. Cet aspect est important car il permet d'ajouter un 
 avantage de plus à l'utilisation du DSL. 
